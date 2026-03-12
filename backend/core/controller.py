@@ -11,80 +11,103 @@ from backend.modules.smart_edit.smart_editor import SmartEditor
 from backend.modules.broll.broll_engine import BRollEngine
 from backend.modules.silence.silence_remover import SilenceRemover
 from backend.modules.hook.hook_detector import HookDetector
+
 from backend.modules.healing.self_healing import SelfHealingSystem
 from backend.modules.knowledge.knowledge_engine import KnowledgeEngine
 from backend.modules.data.data_collector import DataCollector
+
 from backend.modules.thumbnail.thumbnail_engine import ThumbnailEngine
 from backend.modules.seo.seo_engine import SEOEngine
 from backend.modules.trends.trend_engine import TrendEngine
 from backend.modules.ideas.idea_engine import IdeaEngine
 from backend.modules.strategy.strategy_engine import StrategyEngine
+
 from backend.modules.emotion.emotion_engine import EmotionEngine
 from backend.modules.style.style_engine import StyleEngine
 from backend.modules.motion.motion_engine import MotionEngine
+
 from backend.modules.assets.asset_manager import AssetManager
 from backend.modules.quality.quality_engine import QualityEngine
 from backend.modules.improvement.improvement_engine import ImprovementEngine
 from backend.modules.memory.memory_engine import MemoryEngine
+
 from backend.modules.orchestrator.orchestrator_engine import OrchestratorEngine
 from backend.modules.plugins.plugin_manager import PluginManager
 from backend.modules.router.model_router import ModelRouter
 from backend.modules.queue.task_queue import TaskQueue
 from backend.modules.supervisor.agent_supervisor import AgentSupervisor
 from backend.modules.analytics.video_analytics import VideoAnalytics
+
 from backend.modules.composer.scene_composer import SceneComposer
 from backend.modules.editor.video_editor import VideoEditor
 from backend.modules.renderer.video_renderer import VideoRenderer
+
+from backend.modules.publisher.publisher_engine import PublisherEngine
 
 
 class Controller:
 
     def __init__(self):
 
+        # Core systems
         self.supervisor = AgentSupervisor()
         self.analytics = VideoAnalytics()
+        self.healing = SelfHealingSystem()
+
+        # Trend + idea engines
         self.trend_engine = TrendEngine()
         self.idea_engine = IdeaEngine()
         self.strategy_engine = StrategyEngine()
 
-        self.healing = SelfHealingSystem()
-        self.assets = AssetManager()
-        self.quality_engine = QualityEngine()
-        self.improvement_engine = ImprovementEngine()
-        self.memory_engine = MemoryEngine()
-        self.orchestrator = OrchestratorEngine()
-        self.plugins = PluginManager()
-        self.router = ModelRouter()
-        self.queue = TaskQueue()
-
-        self.prompt_interpreter = PromptInterpreter()
+        # Data + research
         self.data_collector = DataCollector()
-        self.thumbnail_engine = ThumbnailEngine()
-        self.seo_engine = SEOEngine()
-
-        self.style_engine = StyleEngine()
         self.knowledge_engine = KnowledgeEngine()
+
+        # Planning engines
+        self.prompt_interpreter = PromptInterpreter()
         self.video_planner = VideoPlanner()
         self.script_generator = ScriptGenerator()
         self.story_engine = StoryEngine()
+
+        # Creative engines
         self.emotion_engine = EmotionEngine()
+        self.style_engine = StyleEngine()
         self.motion_engine = MotionEngine()
 
+        # Scene + visual generation
         self.scene_splitter = SceneSplitter()
         self.visual_generator = VisualPromptGenerator()
-
-        self.voice_generator = VoiceGenerator()
         self.image_generator = ImageGenerator()
+        self.voice_generator = VoiceGenerator()
 
+        # Editing systems
         self.caption_generator = CaptionGenerator()
         self.smart_editor = SmartEditor()
         self.broll_engine = BRollEngine()
         self.silence_remover = SilenceRemover()
         self.hook_detector = HookDetector()
 
+        # Composition systems
         self.scene_composer = SceneComposer()
         self.video_editor = VideoEditor()
         self.video_renderer = VideoRenderer()
+
+        # Optimization systems
+        self.thumbnail_engine = ThumbnailEngine()
+        self.seo_engine = SEOEngine()
+        self.quality_engine = QualityEngine()
+        self.improvement_engine = ImprovementEngine()
+
+        # Infrastructure systems
+        self.assets = AssetManager()
+        self.memory_engine = MemoryEngine()
+        self.orchestrator = OrchestratorEngine()
+        self.plugins = PluginManager()
+        self.router = ModelRouter()
+        self.queue = TaskQueue()
+
+        # Publishing engine
+        self.publisher_engine = PublisherEngine()
 
     def safe_run(self, name, func, *args):
 
@@ -101,54 +124,72 @@ class Controller:
 
         try:
 
+            # Get trends
             trending_topics = self.trend_engine.get_trending_topics()
 
+            # Generate content ideas
             ideas = self.idea_engine.generate_ideas(trending_topics)
 
+            # Generate strategy
             strategy = self.strategy_engine.build_strategy(ideas)
 
+            # Interpret prompt
             prompt_data = self.safe_run(
                 "prompt_interpreter",
                 self.prompt_interpreter.interpret,
                 prompt
             )
 
+            # Collect research data
             research_data = self.safe_run(
                 "data_collector",
                 self.data_collector.collect_data,
                 prompt_data
             )
 
+            # Plan video
             video_plan = self.safe_run(
                 "video_planner",
                 self.video_planner.create_plan,
                 prompt_data
             )
 
+            # Generate script
             script = self.safe_run(
                 "script_generator",
                 self.script_generator.generate_script,
                 video_plan
             )
 
+            # Split scenes
             scenes = self.safe_run(
                 "scene_splitter",
                 self.scene_splitter.split_scenes,
                 script
             )
 
-            images = self.safe_run(
-                "image_generator",
-                self.image_generator.generate_images,
+            # Generate visuals
+            visuals = self.safe_run(
+                "visual_generator",
+                self.visual_generator.generate_visuals,
                 scenes
             )
 
+            # Generate images
+            images = self.safe_run(
+                "image_generator",
+                self.image_generator.generate_images,
+                visuals
+            )
+
+            # Generate voice
             voice_tracks = self.safe_run(
                 "voice_generator",
                 self.voice_generator.generate_voice,
                 scenes
             )
 
+            # Compose scenes
             composed_scenes = self.safe_run(
                 "scene_composer",
                 self.scene_composer.compose_scenes,
@@ -156,29 +197,53 @@ class Controller:
                 voice_tracks
             )
 
+            # Edit video
             timeline = self.safe_run(
                 "video_editor",
                 self.video_editor.assemble_video,
                 composed_scenes
             )
 
+            # Render final video
             rendered_video = self.safe_run(
                 "video_renderer",
                 self.video_renderer.render_video,
                 timeline
             )
 
+            # Generate thumbnail
             thumbnail = self.thumbnail_engine.generate_thumbnail(scenes)
 
+            # SEO metadata
             metadata = self.seo_engine.generate_metadata(prompt_data, script)
 
+            # Prepare platform exports
+            platform_exports = self.publisher_engine.prepare_platform_exports(rendered_video)
+
+            # Quality analysis
+            quality = self.safe_run(
+                "quality_engine",
+                self.quality_engine.evaluate_video,
+                rendered_video
+            )
+
+            # Improvements
+            improvements = self.safe_run(
+                "improvement_engine",
+                self.improvement_engine.analyze_improvements,
+                quality
+            )
+
+            # Analytics
             analytics = self.analytics.analyze_video({
                 "script": script,
                 "scenes": scenes
             })
 
+            # System health
             health = self.healing.check_system_health()
 
+            # Cleanup temp assets
             self.assets.cleanup_assets()
 
             workflow = {
@@ -193,7 +258,11 @@ class Controller:
                 "thumbnail": thumbnail,
                 "seo_metadata": metadata,
                 "rendered_video": rendered_video,
+                "platform_exports": platform_exports,
+                "quality_scores": quality,
                 "analytics": analytics,
+                "suggested_improvements": improvements,
+                "agent_status": self.supervisor.get_status(),
                 "system_health": health
             }
 
