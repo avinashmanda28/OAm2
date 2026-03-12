@@ -18,6 +18,7 @@ from backend.modules.style.style_engine import StyleEngine
 from backend.modules.motion.motion_engine import MotionEngine
 from backend.modules.assets.asset_manager import AssetManager
 from backend.modules.quality.quality_engine import QualityEngine
+from backend.modules.improvement.improvement_engine import ImprovementEngine
 from backend.modules.composer.scene_composer import SceneComposer
 from backend.modules.editor.video_editor import VideoEditor
 from backend.modules.renderer.video_renderer import VideoRenderer
@@ -30,6 +31,7 @@ class Controller:
         self.healing = SelfHealingSystem()
         self.assets = AssetManager()
         self.quality_engine = QualityEngine()
+        self.improvement_engine = ImprovementEngine()
 
         self.prompt_interpreter = PromptInterpreter()
         self.style_engine = StyleEngine()
@@ -102,6 +104,8 @@ class Controller:
 
             quality = self.quality_engine.evaluate_video(rendered_video)
 
+            improvements = self.improvement_engine.analyze_improvements(quality)
+
             health = self.healing.check_system_health()
 
             self.assets.cleanup_assets()
@@ -128,6 +132,7 @@ class Controller:
                 "timeline": timeline,
                 "rendered_video": rendered_video,
                 "quality_scores": quality,
+                "suggested_improvements": improvements,
                 "system_health": health
             }
 
