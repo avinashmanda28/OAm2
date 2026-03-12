@@ -5,10 +5,11 @@ from backend.modules.scene.scene_splitter import SceneSplitter
 from backend.modules.visual.visual_prompt_generator import VisualPromptGenerator
 from backend.modules.voice.voice_generator import VoiceGenerator
 from backend.modules.image.image_generator import ImageGenerator
+from backend.modules.caption.caption_generator import CaptionGenerator
 from backend.modules.composer.scene_composer import SceneComposer
 from backend.modules.editor.video_editor import VideoEditor
 from backend.modules.renderer.video_renderer import VideoRenderer
-from backend.modules.caption.caption_generator import CaptionGenerator
+from backend.modules.smart_edit.smart_editor import SmartEditor
 
 
 class Controller:
@@ -23,6 +24,7 @@ class Controller:
         self.voice_generator = VoiceGenerator()
         self.image_generator = ImageGenerator()
         self.caption_generator = CaptionGenerator()
+        self.smart_editor = SmartEditor()
         self.scene_composer = SceneComposer()
         self.video_editor = VideoEditor()
         self.video_renderer = VideoRenderer()
@@ -38,6 +40,8 @@ class Controller:
         captions = self.caption_generator.generate_captions(script)
 
         scenes = self.scene_splitter.split_scenes(script)
+
+        editing = self.smart_editor.analyze_editing(script, scenes)
 
         visuals = self.visual_generator.generate_visuals(scenes)
 
@@ -57,6 +61,7 @@ class Controller:
             "script": script,
             "captions": captions,
             "scenes": scenes,
+            "editing_plan": editing,
             "visual_prompts": visuals,
             "voice_tracks": voice_tracks,
             "images": images,
