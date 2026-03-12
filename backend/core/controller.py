@@ -20,6 +20,7 @@ from backend.modules.assets.asset_manager import AssetManager
 from backend.modules.quality.quality_engine import QualityEngine
 from backend.modules.improvement.improvement_engine import ImprovementEngine
 from backend.modules.memory.memory_engine import MemoryEngine
+from backend.modules.orchestrator.orchestrator_engine import OrchestratorEngine
 from backend.modules.composer.scene_composer import SceneComposer
 from backend.modules.editor.video_editor import VideoEditor
 from backend.modules.renderer.video_renderer import VideoRenderer
@@ -34,6 +35,7 @@ class Controller:
         self.quality_engine = QualityEngine()
         self.improvement_engine = ImprovementEngine()
         self.memory_engine = MemoryEngine()
+        self.orchestrator = OrchestratorEngine()
 
         self.prompt_interpreter = PromptInterpreter()
         self.style_engine = StyleEngine()
@@ -64,20 +66,26 @@ class Controller:
 
         try:
 
+            self.orchestrator.clear_pipeline()
+
             prompt_data = self.prompt_interpreter.interpret(prompt)
+            self.orchestrator.register_task("prompt_interpreter")
 
             past_records = self.memory_engine.retrieve_similar(prompt_data)
 
             style = self.style_engine.determine_style(prompt_data)
+            self.orchestrator.register_task("style_engine")
 
             knowledge = self.knowledge_engine.collect_knowledge(prompt_data)
+            self.orchestrator.register_task("knowledge_engine")
 
             video_plan = self.video_planner.create_plan(prompt_data)
+            self.orchestrator.register_task("video_planner")
 
             script = self.script_generator.generate_script(video_plan)
+            self.orchestrator.register_task("script_generator")
 
             story = self.story_engine.optimize_story(script)
-
             emotions = self.emotion_engine.analyze_emotions(script)
 
             hook = self.hook_detector.detect_hook(script)
@@ -138,6 +146,7 @@ class Controller:
                 "rendered_video": rendered_video,
                 "quality_scores": quality,
                 "suggested_improvements": improvements,
+                "pipeline": self.orchestrator.get_pipeline(),
                 "system_health": health
             }
 
@@ -150,4 +159,4 @@ class Controller:
             return {
                 "error": str(e),
                 "system_health": self.healing.check_system_health()
-}
+        }
