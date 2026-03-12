@@ -1,6 +1,7 @@
 from backend.modules.prompt.prompt_interpreter import PromptInterpreter
 from backend.modules.planner.video_planner import VideoPlanner
 from backend.modules.script.script_generator import ScriptGenerator
+from backend.modules.story.story_engine import StoryEngine
 from backend.modules.scene.scene_splitter import SceneSplitter
 from backend.modules.visual.visual_prompt_generator import VisualPromptGenerator
 from backend.modules.voice.voice_generator import VoiceGenerator
@@ -21,21 +22,32 @@ class Controller:
 
     def __init__(self):
 
+        # System monitoring
         self.healing = SelfHealingSystem()
 
+        # Core AI modules
         self.prompt_interpreter = PromptInterpreter()
         self.knowledge_engine = KnowledgeEngine()
         self.video_planner = VideoPlanner()
         self.script_generator = ScriptGenerator()
+        self.story_engine = StoryEngine()
+
+        # Scene modules
         self.scene_splitter = SceneSplitter()
         self.visual_generator = VisualPromptGenerator()
+
+        # Media generation
         self.voice_generator = VoiceGenerator()
         self.image_generator = ImageGenerator()
+
+        # Video intelligence
         self.caption_generator = CaptionGenerator()
         self.smart_editor = SmartEditor()
         self.broll_engine = BRollEngine()
         self.silence_remover = SilenceRemover()
         self.hook_detector = HookDetector()
+
+        # Composition
         self.scene_composer = SceneComposer()
         self.video_editor = VideoEditor()
         self.video_renderer = VideoRenderer()
@@ -44,48 +56,70 @@ class Controller:
 
         try:
 
+            # Step 1 — Prompt Analysis
             prompt_data = self.prompt_interpreter.interpret(prompt)
             self.healing.monitor_module("prompt_interpreter", "ok")
 
+            # Step 2 — Knowledge Collection
             knowledge = self.knowledge_engine.collect_knowledge(prompt_data)
             self.healing.monitor_module("knowledge_engine", "ok")
 
+            # Step 3 — Video Plan
             video_plan = self.video_planner.create_plan(prompt_data)
 
+            # Step 4 — Script Generation
             script = self.script_generator.generate_script(video_plan)
+            self.healing.monitor_module("script_generator", "ok")
 
+            # Step 5 — Story Optimization
+            story = self.story_engine.optimize_story(script)
+
+            # Step 6 — Hook Detection
             hook = self.hook_detector.detect_hook(script)
 
+            # Step 7 — Captions
             captions = self.caption_generator.generate_captions(script)
 
+            # Step 8 — Scene Splitting
             scenes = self.scene_splitter.split_scenes(script)
 
+            # Step 9 — Smart Editing
             editing = self.smart_editor.analyze_editing(script, scenes)
 
+            # Step 10 — B-Roll Generation
             broll = self.broll_engine.generate_broll(scenes)
 
+            # Step 11 — Visual Prompt Generation
             visuals = self.visual_generator.generate_visuals(scenes)
 
+            # Step 12 — Voice Generation
             voice_tracks = self.voice_generator.generate_voice(scenes)
 
+            # Step 13 — Silence Removal
             optimized_audio = self.silence_remover.remove_silence(voice_tracks)
 
+            # Step 14 — Image Generation
             images = self.image_generator.generate_images(visuals)
 
+            # Step 15 — Scene Composition
             composed_scenes = self.scene_composer.compose_scenes(images, voice_tracks)
 
+            # Step 16 — Video Editing
             timeline = self.video_editor.assemble_video(composed_scenes)
 
+            # Step 17 — Rendering
             rendered_video = self.video_renderer.render_video(timeline)
 
+            # Step 18 — System Health Check
             health = self.healing.check_system_health()
 
             workflow = {
                 "prompt_analysis": prompt_data,
                 "knowledge": knowledge,
                 "video_plan": video_plan,
-                "hook": hook,
                 "script": script,
+                "story": story,
+                "hook": hook,
                 "captions": captions,
                 "scenes": scenes,
                 "editing_plan": editing,
@@ -107,4 +141,4 @@ class Controller:
             return {
                 "error": str(e),
                 "system_health": self.healing.check_system_health()
-        }
+    }
