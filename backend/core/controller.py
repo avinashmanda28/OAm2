@@ -9,6 +9,7 @@ from backend.modules.caption.caption_generator import CaptionGenerator
 from backend.modules.smart_edit.smart_editor import SmartEditor
 from backend.modules.broll.broll_engine import BRollEngine
 from backend.modules.silence.silence_remover import SilenceRemover
+from backend.modules.hook.hook_detector import HookDetector
 from backend.modules.composer.scene_composer import SceneComposer
 from backend.modules.editor.video_editor import VideoEditor
 from backend.modules.renderer.video_renderer import VideoRenderer
@@ -29,6 +30,7 @@ class Controller:
         self.smart_editor = SmartEditor()
         self.broll_engine = BRollEngine()
         self.silence_remover = SilenceRemover()
+        self.hook_detector = HookDetector()
         self.scene_composer = SceneComposer()
         self.video_editor = VideoEditor()
         self.video_renderer = VideoRenderer()
@@ -40,6 +42,8 @@ class Controller:
         video_plan = self.video_planner.create_plan(prompt_data)
 
         script = self.script_generator.generate_script(video_plan)
+
+        hook = self.hook_detector.detect_hook(script)
 
         captions = self.caption_generator.generate_captions(script)
 
@@ -66,6 +70,7 @@ class Controller:
         workflow = {
             "prompt_analysis": prompt_data,
             "video_plan": video_plan,
+            "hook": hook,
             "script": script,
             "captions": captions,
             "scenes": scenes,
