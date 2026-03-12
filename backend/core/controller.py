@@ -13,6 +13,7 @@ from backend.modules.silence.silence_remover import SilenceRemover
 from backend.modules.hook.hook_detector import HookDetector
 from backend.modules.healing.self_healing import SelfHealingSystem
 from backend.modules.knowledge.knowledge_engine import KnowledgeEngine
+from backend.modules.emotion.emotion_engine import EmotionEngine
 from backend.modules.composer.scene_composer import SceneComposer
 from backend.modules.editor.video_editor import VideoEditor
 from backend.modules.renderer.video_renderer import VideoRenderer
@@ -22,7 +23,7 @@ class Controller:
 
     def __init__(self):
 
-        # System monitoring
+        # Monitoring
         self.healing = SelfHealingSystem()
 
         # Core AI modules
@@ -31,6 +32,7 @@ class Controller:
         self.video_planner = VideoPlanner()
         self.script_generator = ScriptGenerator()
         self.story_engine = StoryEngine()
+        self.emotion_engine = EmotionEngine()
 
         # Scene modules
         self.scene_splitter = SceneSplitter()
@@ -56,61 +58,45 @@ class Controller:
 
         try:
 
-            # Step 1 — Prompt Analysis
             prompt_data = self.prompt_interpreter.interpret(prompt)
             self.healing.monitor_module("prompt_interpreter", "ok")
 
-            # Step 2 — Knowledge Collection
             knowledge = self.knowledge_engine.collect_knowledge(prompt_data)
             self.healing.monitor_module("knowledge_engine", "ok")
 
-            # Step 3 — Video Plan
             video_plan = self.video_planner.create_plan(prompt_data)
 
-            # Step 4 — Script Generation
             script = self.script_generator.generate_script(video_plan)
             self.healing.monitor_module("script_generator", "ok")
 
-            # Step 5 — Story Optimization
             story = self.story_engine.optimize_story(script)
 
-            # Step 6 — Hook Detection
+            emotions = self.emotion_engine.analyze_emotions(script)
+
             hook = self.hook_detector.detect_hook(script)
 
-            # Step 7 — Captions
             captions = self.caption_generator.generate_captions(script)
 
-            # Step 8 — Scene Splitting
             scenes = self.scene_splitter.split_scenes(script)
 
-            # Step 9 — Smart Editing
             editing = self.smart_editor.analyze_editing(script, scenes)
 
-            # Step 10 — B-Roll Generation
             broll = self.broll_engine.generate_broll(scenes)
 
-            # Step 11 — Visual Prompt Generation
             visuals = self.visual_generator.generate_visuals(scenes)
 
-            # Step 12 — Voice Generation
             voice_tracks = self.voice_generator.generate_voice(scenes)
 
-            # Step 13 — Silence Removal
             optimized_audio = self.silence_remover.remove_silence(voice_tracks)
 
-            # Step 14 — Image Generation
             images = self.image_generator.generate_images(visuals)
 
-            # Step 15 — Scene Composition
             composed_scenes = self.scene_composer.compose_scenes(images, voice_tracks)
 
-            # Step 16 — Video Editing
             timeline = self.video_editor.assemble_video(composed_scenes)
 
-            # Step 17 — Rendering
             rendered_video = self.video_renderer.render_video(timeline)
 
-            # Step 18 — System Health Check
             health = self.healing.check_system_health()
 
             workflow = {
@@ -119,6 +105,7 @@ class Controller:
                 "video_plan": video_plan,
                 "script": script,
                 "story": story,
+                "emotions": emotions,
                 "hook": hook,
                 "captions": captions,
                 "scenes": scenes,
@@ -141,4 +128,4 @@ class Controller:
             return {
                 "error": str(e),
                 "system_health": self.healing.check_system_health()
-    }
+}
