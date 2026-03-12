@@ -16,6 +16,7 @@ from backend.modules.knowledge.knowledge_engine import KnowledgeEngine
 from backend.modules.emotion.emotion_engine import EmotionEngine
 from backend.modules.style.style_engine import StyleEngine
 from backend.modules.motion.motion_engine import MotionEngine
+from backend.modules.assets.asset_manager import AssetManager
 from backend.modules.composer.scene_composer import SceneComposer
 from backend.modules.editor.video_editor import VideoEditor
 from backend.modules.renderer.video_renderer import VideoRenderer
@@ -26,6 +27,7 @@ class Controller:
     def __init__(self):
 
         self.healing = SelfHealingSystem()
+        self.assets = AssetManager()
 
         self.prompt_interpreter = PromptInterpreter()
         self.style_engine = StyleEngine()
@@ -98,6 +100,8 @@ class Controller:
 
             health = self.healing.check_system_health()
 
+            self.assets.cleanup_assets()
+
             workflow = {
                 "prompt_analysis": prompt_data,
                 "style": style,
@@ -129,4 +133,4 @@ class Controller:
             return {
                 "error": str(e),
                 "system_health": self.healing.check_system_health()
-    }
+        }
