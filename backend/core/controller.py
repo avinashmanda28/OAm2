@@ -18,6 +18,7 @@ from backend.modules.thumbnail.thumbnail_engine import ThumbnailEngine
 from backend.modules.seo.seo_engine import SEOEngine
 from backend.modules.trends.trend_engine import TrendEngine
 from backend.modules.ideas.idea_engine import IdeaEngine
+from backend.modules.strategy.strategy_engine import StrategyEngine
 from backend.modules.emotion.emotion_engine import EmotionEngine
 from backend.modules.style.style_engine import StyleEngine
 from backend.modules.motion.motion_engine import MotionEngine
@@ -44,6 +45,7 @@ class Controller:
         self.analytics = VideoAnalytics()
         self.trend_engine = TrendEngine()
         self.idea_engine = IdeaEngine()
+        self.strategy_engine = StrategyEngine()
 
         self.healing = SelfHealingSystem()
         self.assets = AssetManager()
@@ -103,6 +105,8 @@ class Controller:
 
             ideas = self.idea_engine.generate_ideas(trending_topics)
 
+            strategy = self.strategy_engine.build_strategy(ideas)
+
             prompt_data = self.safe_run(
                 "prompt_interpreter",
                 self.prompt_interpreter.interpret,
@@ -112,18 +116,6 @@ class Controller:
             research_data = self.safe_run(
                 "data_collector",
                 self.data_collector.collect_data,
-                prompt_data
-            )
-
-            style = self.safe_run(
-                "style_engine",
-                self.style_engine.determine_style,
-                prompt_data
-            )
-
-            knowledge = self.safe_run(
-                "knowledge_engine",
-                self.knowledge_engine.collect_knowledge,
                 prompt_data
             )
 
@@ -145,9 +137,9 @@ class Controller:
                 script
             )
 
-            visuals = self.safe_run(
-                "visual_generator",
-                self.visual_generator.generate_visuals,
+            images = self.safe_run(
+                "image_generator",
+                self.image_generator.generate_images,
                 scenes
             )
 
@@ -155,12 +147,6 @@ class Controller:
                 "voice_generator",
                 self.voice_generator.generate_voice,
                 scenes
-            )
-
-            images = self.safe_run(
-                "image_generator",
-                self.image_generator.generate_images,
-                visuals
             )
 
             composed_scenes = self.safe_run(
@@ -186,18 +172,6 @@ class Controller:
 
             metadata = self.seo_engine.generate_metadata(prompt_data, script)
 
-            quality = self.safe_run(
-                "quality_engine",
-                self.quality_engine.evaluate_video,
-                rendered_video
-            )
-
-            improvements = self.safe_run(
-                "improvement_engine",
-                self.improvement_engine.analyze_improvements,
-                quality
-            )
-
             analytics = self.analytics.analyze_video({
                 "script": script,
                 "scenes": scenes
@@ -210,20 +184,16 @@ class Controller:
             workflow = {
                 "trending_topics": trending_topics,
                 "content_ideas": ideas,
+                "content_strategy": strategy,
                 "prompt_analysis": prompt_data,
                 "research_data": research_data,
-                "style": style,
-                "knowledge": knowledge,
                 "video_plan": video_plan,
                 "script": script,
                 "scenes": scenes,
                 "thumbnail": thumbnail,
                 "seo_metadata": metadata,
                 "rendered_video": rendered_video,
-                "quality_scores": quality,
                 "analytics": analytics,
-                "suggested_improvements": improvements,
-                "agent_status": self.supervisor.get_status(),
                 "system_health": health
             }
 
