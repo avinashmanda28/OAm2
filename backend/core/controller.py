@@ -14,6 +14,7 @@ from backend.modules.hook.hook_detector import HookDetector
 from backend.modules.healing.self_healing import SelfHealingSystem
 from backend.modules.knowledge.knowledge_engine import KnowledgeEngine
 from backend.modules.emotion.emotion_engine import EmotionEngine
+from backend.modules.style.style_engine import StyleEngine
 from backend.modules.composer.scene_composer import SceneComposer
 from backend.modules.editor.video_editor import VideoEditor
 from backend.modules.renderer.video_renderer import VideoRenderer
@@ -23,11 +24,12 @@ class Controller:
 
     def __init__(self):
 
-        # Monitoring
+        # System monitoring
         self.healing = SelfHealingSystem()
 
         # Core AI modules
         self.prompt_interpreter = PromptInterpreter()
+        self.style_engine = StyleEngine()
         self.knowledge_engine = KnowledgeEngine()
         self.video_planner = VideoPlanner()
         self.script_generator = ScriptGenerator()
@@ -58,49 +60,72 @@ class Controller:
 
         try:
 
+            # STEP 1 — Prompt Analysis
             prompt_data = self.prompt_interpreter.interpret(prompt)
             self.healing.monitor_module("prompt_interpreter", "ok")
 
+            # STEP 2 — Determine Visual Style
+            style = self.style_engine.determine_style(prompt_data)
+
+            # STEP 3 — Collect Knowledge
             knowledge = self.knowledge_engine.collect_knowledge(prompt_data)
             self.healing.monitor_module("knowledge_engine", "ok")
 
+            # STEP 4 — Plan Video Structure
             video_plan = self.video_planner.create_plan(prompt_data)
 
+            # STEP 5 — Generate Script
             script = self.script_generator.generate_script(video_plan)
             self.healing.monitor_module("script_generator", "ok")
 
+            # STEP 6 — Optimize Story
             story = self.story_engine.optimize_story(script)
 
+            # STEP 7 — Emotion Detection
             emotions = self.emotion_engine.analyze_emotions(script)
 
+            # STEP 8 — Detect Hook
             hook = self.hook_detector.detect_hook(script)
 
+            # STEP 9 — Generate Captions
             captions = self.caption_generator.generate_captions(script)
 
+            # STEP 10 — Split Scenes
             scenes = self.scene_splitter.split_scenes(script)
 
+            # STEP 11 — Smart Editing Plan
             editing = self.smart_editor.analyze_editing(script, scenes)
 
+            # STEP 12 — B-Roll Suggestions
             broll = self.broll_engine.generate_broll(scenes)
 
+            # STEP 13 — Generate Visual Prompts
             visuals = self.visual_generator.generate_visuals(scenes)
 
+            # STEP 14 — Generate Voice
             voice_tracks = self.voice_generator.generate_voice(scenes)
 
+            # STEP 15 — Remove Silence
             optimized_audio = self.silence_remover.remove_silence(voice_tracks)
 
+            # STEP 16 — Generate Images
             images = self.image_generator.generate_images(visuals)
 
+            # STEP 17 — Compose Scenes
             composed_scenes = self.scene_composer.compose_scenes(images, voice_tracks)
 
+            # STEP 18 — Assemble Video Timeline
             timeline = self.video_editor.assemble_video(composed_scenes)
 
+            # STEP 19 — Render Final Video
             rendered_video = self.video_renderer.render_video(timeline)
 
+            # STEP 20 — System Health Check
             health = self.healing.check_system_health()
 
             workflow = {
                 "prompt_analysis": prompt_data,
+                "style": style,
                 "knowledge": knowledge,
                 "video_plan": video_plan,
                 "script": script,
@@ -128,4 +153,4 @@ class Controller:
             return {
                 "error": str(e),
                 "system_health": self.healing.check_system_health()
-}
+    }
