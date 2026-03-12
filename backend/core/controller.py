@@ -7,6 +7,7 @@ from backend.modules.voice.voice_generator import VoiceGenerator
 from backend.modules.image.image_generator import ImageGenerator
 from backend.modules.composer.scene_composer import SceneComposer
 from backend.modules.editor.video_editor import VideoEditor
+from backend.modules.renderer.video_renderer import VideoRenderer
 
 
 class Controller:
@@ -22,6 +23,7 @@ class Controller:
         self.image_generator = ImageGenerator()
         self.scene_composer = SceneComposer()
         self.video_editor = VideoEditor()
+        self.video_renderer = VideoRenderer()
 
     def process_prompt(self, prompt: str):
 
@@ -43,6 +45,8 @@ class Controller:
 
         final_video = self.video_editor.assemble_video(composed_scenes)
 
+        rendered_video = self.video_renderer.render_video(final_video)
+
         workflow = {
             "prompt_analysis": prompt_data,
             "video_plan": video_plan,
@@ -52,7 +56,8 @@ class Controller:
             "voice_tracks": voice_tracks,
             "images": images,
             "scene_videos": composed_scenes,
-            "final_video": final_video
+            "timeline": final_video,
+            "rendered_video": rendered_video
         }
 
         return workflow
