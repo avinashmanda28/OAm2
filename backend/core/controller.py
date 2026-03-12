@@ -15,6 +15,7 @@ from backend.modules.healing.self_healing import SelfHealingSystem
 from backend.modules.knowledge.knowledge_engine import KnowledgeEngine
 from backend.modules.data.data_collector import DataCollector
 from backend.modules.thumbnail.thumbnail_engine import ThumbnailEngine
+from backend.modules.seo.seo_engine import SEOEngine
 from backend.modules.emotion.emotion_engine import EmotionEngine
 from backend.modules.style.style_engine import StyleEngine
 from backend.modules.motion.motion_engine import MotionEngine
@@ -53,6 +54,7 @@ class Controller:
         self.prompt_interpreter = PromptInterpreter()
         self.data_collector = DataCollector()
         self.thumbnail_engine = ThumbnailEngine()
+        self.seo_engine = SEOEngine()
 
         self.style_engine = StyleEngine()
         self.knowledge_engine = KnowledgeEngine()
@@ -83,8 +85,7 @@ class Controller:
         try:
 
             self.supervisor.register_agent(name)
-            result = func(*args)
-            return result
+            return func(*args)
 
         except Exception:
 
@@ -177,6 +178,8 @@ class Controller:
 
             thumbnail = self.thumbnail_engine.generate_thumbnail(scenes)
 
+            metadata = self.seo_engine.generate_metadata(prompt_data, script)
+
             quality = self.safe_run(
                 "quality_engine",
                 self.quality_engine.evaluate_video,
@@ -207,6 +210,7 @@ class Controller:
                 "script": script,
                 "scenes": scenes,
                 "thumbnail": thumbnail,
+                "seo_metadata": metadata,
                 "rendered_video": rendered_video,
                 "quality_scores": quality,
                 "analytics": analytics,
@@ -224,4 +228,4 @@ class Controller:
             return {
                 "error": str(e),
                 "system_health": self.healing.check_system_health()
-        }
+}
