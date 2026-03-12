@@ -16,6 +16,7 @@ from backend.modules.knowledge.knowledge_engine import KnowledgeEngine
 from backend.modules.data.data_collector import DataCollector
 from backend.modules.thumbnail.thumbnail_engine import ThumbnailEngine
 from backend.modules.seo.seo_engine import SEOEngine
+from backend.modules.trends.trend_engine import TrendEngine
 from backend.modules.emotion.emotion_engine import EmotionEngine
 from backend.modules.style.style_engine import StyleEngine
 from backend.modules.motion.motion_engine import MotionEngine
@@ -40,6 +41,7 @@ class Controller:
 
         self.supervisor = AgentSupervisor()
         self.analytics = VideoAnalytics()
+        self.trend_engine = TrendEngine()
 
         self.healing = SelfHealingSystem()
         self.assets = AssetManager()
@@ -83,12 +85,10 @@ class Controller:
     def safe_run(self, name, func, *args):
 
         try:
-
             self.supervisor.register_agent(name)
             return func(*args)
 
         except Exception:
-
             self.supervisor.report_failure(name)
             self.supervisor.restart_agent(name)
             return None
@@ -96,6 +96,8 @@ class Controller:
     def process_prompt(self, prompt: str):
 
         try:
+
+            trending_topics = self.trend_engine.get_trending_topics()
 
             prompt_data = self.safe_run(
                 "prompt_interpreter",
@@ -202,6 +204,7 @@ class Controller:
             self.assets.cleanup_assets()
 
             workflow = {
+                "trending_topics": trending_topics,
                 "prompt_analysis": prompt_data,
                 "research_data": research_data,
                 "style": style,
