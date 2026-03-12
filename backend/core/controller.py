@@ -17,6 +17,7 @@ from backend.modules.data.data_collector import DataCollector
 from backend.modules.thumbnail.thumbnail_engine import ThumbnailEngine
 from backend.modules.seo.seo_engine import SEOEngine
 from backend.modules.trends.trend_engine import TrendEngine
+from backend.modules.ideas.idea_engine import IdeaEngine
 from backend.modules.emotion.emotion_engine import EmotionEngine
 from backend.modules.style.style_engine import StyleEngine
 from backend.modules.motion.motion_engine import MotionEngine
@@ -42,6 +43,7 @@ class Controller:
         self.supervisor = AgentSupervisor()
         self.analytics = VideoAnalytics()
         self.trend_engine = TrendEngine()
+        self.idea_engine = IdeaEngine()
 
         self.healing = SelfHealingSystem()
         self.assets = AssetManager()
@@ -98,6 +100,8 @@ class Controller:
         try:
 
             trending_topics = self.trend_engine.get_trending_topics()
+
+            ideas = self.idea_engine.generate_ideas(trending_topics)
 
             prompt_data = self.safe_run(
                 "prompt_interpreter",
@@ -205,6 +209,7 @@ class Controller:
 
             workflow = {
                 "trending_topics": trending_topics,
+                "content_ideas": ideas,
                 "prompt_analysis": prompt_data,
                 "research_data": research_data,
                 "style": style,
