@@ -8,6 +8,7 @@ from backend.modules.image.image_generator import ImageGenerator
 from backend.modules.composer.scene_composer import SceneComposer
 from backend.modules.editor.video_editor import VideoEditor
 from backend.modules.renderer.video_renderer import VideoRenderer
+from backend.modules.caption.caption_generator import CaptionGenerator
 
 
 class Controller:
@@ -21,6 +22,7 @@ class Controller:
         self.visual_generator = VisualPromptGenerator()
         self.voice_generator = VoiceGenerator()
         self.image_generator = ImageGenerator()
+        self.caption_generator = CaptionGenerator()
         self.scene_composer = SceneComposer()
         self.video_editor = VideoEditor()
         self.video_renderer = VideoRenderer()
@@ -33,6 +35,8 @@ class Controller:
 
         script = self.script_generator.generate_script(video_plan)
 
+        captions = self.caption_generator.generate_captions(script)
+
         scenes = self.scene_splitter.split_scenes(script)
 
         visuals = self.visual_generator.generate_visuals(scenes)
@@ -43,20 +47,21 @@ class Controller:
 
         composed_scenes = self.scene_composer.compose_scenes(images, voice_tracks)
 
-        final_video = self.video_editor.assemble_video(composed_scenes)
+        timeline = self.video_editor.assemble_video(composed_scenes)
 
-        rendered_video = self.video_renderer.render_video(final_video)
+        rendered_video = self.video_renderer.render_video(timeline)
 
         workflow = {
             "prompt_analysis": prompt_data,
             "video_plan": video_plan,
             "script": script,
+            "captions": captions,
             "scenes": scenes,
             "visual_prompts": visuals,
             "voice_tracks": voice_tracks,
             "images": images,
             "scene_videos": composed_scenes,
-            "timeline": final_video,
+            "timeline": timeline,
             "rendered_video": rendered_video
         }
 
