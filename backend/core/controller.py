@@ -22,6 +22,7 @@ from backend.modules.improvement.improvement_engine import ImprovementEngine
 from backend.modules.memory.memory_engine import MemoryEngine
 from backend.modules.orchestrator.orchestrator_engine import OrchestratorEngine
 from backend.modules.plugins.plugin_manager import PluginManager
+from backend.modules.router.model_router import ModelRouter
 from backend.modules.composer.scene_composer import SceneComposer
 from backend.modules.editor.video_editor import VideoEditor
 from backend.modules.renderer.video_renderer import VideoRenderer
@@ -38,6 +39,7 @@ class Controller:
         self.memory_engine = MemoryEngine()
         self.orchestrator = OrchestratorEngine()
         self.plugins = PluginManager()
+        self.router = ModelRouter()
 
         self.prompt_interpreter = PromptInterpreter()
         self.style_engine = StyleEngine()
@@ -70,15 +72,21 @@ class Controller:
 
             self.orchestrator.clear_pipeline()
 
-            prompt_data = self.prompt_interpreter.interpret(prompt)
-            self.orchestrator.register_task("prompt_interpreter")
+            prompt_model = self.router.get_model("prompt")
 
-            past_records = self.memory_engine.retrieve_similar(prompt_data)
+            prompt_data = self.prompt_interpreter.interpret(prompt)
+
+            style_model = self.router.get_model("style")
 
             style = self.style_engine.determine_style(prompt_data)
+
+            knowledge_model = self.router.get_model("knowledge")
+
             knowledge = self.knowledge_engine.collect_knowledge(prompt_data)
 
             video_plan = self.video_planner.create_plan(prompt_data)
+
+            script_model = self.router.get_model("script")
 
             script = self.script_generator.generate_script(video_plan)
 
@@ -121,8 +129,11 @@ class Controller:
             self.assets.cleanup_assets()
 
             workflow = {
+                "prompt_model": prompt_model,
+                "style_model": style_model,
+                "knowledge_model": knowledge_model,
+                "script_model": script_model,
                 "prompt_analysis": prompt_data,
-                "past_records": past_records,
                 "style": style,
                 "knowledge": knowledge,
                 "video_plan": video_plan,
@@ -158,4 +169,4 @@ class Controller:
             return {
                 "error": str(e),
                 "system_health": self.healing.check_system_health()
-}
+    }
