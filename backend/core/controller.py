@@ -8,6 +8,7 @@ from backend.modules.image.image_generator import ImageGenerator
 from backend.modules.caption.caption_generator import CaptionGenerator
 from backend.modules.smart_edit.smart_editor import SmartEditor
 from backend.modules.broll.broll_engine import BRollEngine
+from backend.modules.silence.silence_remover import SilenceRemover
 from backend.modules.composer.scene_composer import SceneComposer
 from backend.modules.editor.video_editor import VideoEditor
 from backend.modules.renderer.video_renderer import VideoRenderer
@@ -27,6 +28,7 @@ class Controller:
         self.caption_generator = CaptionGenerator()
         self.smart_editor = SmartEditor()
         self.broll_engine = BRollEngine()
+        self.silence_remover = SilenceRemover()
         self.scene_composer = SceneComposer()
         self.video_editor = VideoEditor()
         self.video_renderer = VideoRenderer()
@@ -51,6 +53,8 @@ class Controller:
 
         voice_tracks = self.voice_generator.generate_voice(scenes)
 
+        optimized_audio = self.silence_remover.remove_silence(voice_tracks)
+
         images = self.image_generator.generate_images(visuals)
 
         composed_scenes = self.scene_composer.compose_scenes(images, voice_tracks)
@@ -69,6 +73,7 @@ class Controller:
             "broll": broll,
             "visual_prompts": visuals,
             "voice_tracks": voice_tracks,
+            "optimized_audio": optimized_audio,
             "images": images,
             "scene_videos": composed_scenes,
             "timeline": timeline,
