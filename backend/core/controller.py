@@ -25,6 +25,7 @@ from backend.modules.plugins.plugin_manager import PluginManager
 from backend.modules.router.model_router import ModelRouter
 from backend.modules.queue.task_queue import TaskQueue
 from backend.modules.supervisor.agent_supervisor import AgentSupervisor
+from backend.modules.analytics.video_analytics import VideoAnalytics
 from backend.modules.composer.scene_composer import SceneComposer
 from backend.modules.editor.video_editor import VideoEditor
 from backend.modules.renderer.video_renderer import VideoRenderer
@@ -35,6 +36,7 @@ class Controller:
     def __init__(self):
 
         self.supervisor = AgentSupervisor()
+        self.analytics = VideoAnalytics()
 
         self.healing = SelfHealingSystem()
         self.assets = AssetManager()
@@ -178,6 +180,11 @@ class Controller:
                 quality
             )
 
+            analytics = self.analytics.analyze_video({
+                "script": script,
+                "scenes": scenes
+            })
+
             health = self.healing.check_system_health()
 
             self.assets.cleanup_assets()
@@ -191,6 +198,7 @@ class Controller:
                 "scenes": scenes,
                 "rendered_video": rendered_video,
                 "quality_scores": quality,
+                "analytics": analytics,
                 "suggested_improvements": improvements,
                 "agent_status": self.supervisor.get_status(),
                 "system_health": health
