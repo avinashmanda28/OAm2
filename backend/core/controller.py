@@ -14,6 +14,7 @@ from backend.modules.hook.hook_detector import HookDetector
 from backend.modules.healing.self_healing import SelfHealingSystem
 from backend.modules.knowledge.knowledge_engine import KnowledgeEngine
 from backend.modules.data.data_collector import DataCollector
+from backend.modules.thumbnail.thumbnail_engine import ThumbnailEngine
 from backend.modules.emotion.emotion_engine import EmotionEngine
 from backend.modules.style.style_engine import StyleEngine
 from backend.modules.motion.motion_engine import MotionEngine
@@ -51,6 +52,8 @@ class Controller:
 
         self.prompt_interpreter = PromptInterpreter()
         self.data_collector = DataCollector()
+        self.thumbnail_engine = ThumbnailEngine()
+
         self.style_engine = StyleEngine()
         self.knowledge_engine = KnowledgeEngine()
         self.video_planner = VideoPlanner()
@@ -87,7 +90,6 @@ class Controller:
 
             self.supervisor.report_failure(name)
             self.supervisor.restart_agent(name)
-
             return None
 
     def process_prompt(self, prompt: str):
@@ -173,6 +175,8 @@ class Controller:
                 timeline
             )
 
+            thumbnail = self.thumbnail_engine.generate_thumbnail(scenes)
+
             quality = self.safe_run(
                 "quality_engine",
                 self.quality_engine.evaluate_video,
@@ -202,6 +206,7 @@ class Controller:
                 "video_plan": video_plan,
                 "script": script,
                 "scenes": scenes,
+                "thumbnail": thumbnail,
                 "rendered_video": rendered_video,
                 "quality_scores": quality,
                 "analytics": analytics,
@@ -219,4 +224,4 @@ class Controller:
             return {
                 "error": str(e),
                 "system_health": self.healing.check_system_health()
-}
+        }
