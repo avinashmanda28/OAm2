@@ -19,6 +19,7 @@ from backend.modules.motion.motion_engine import MotionEngine
 from backend.modules.assets.asset_manager import AssetManager
 from backend.modules.quality.quality_engine import QualityEngine
 from backend.modules.improvement.improvement_engine import ImprovementEngine
+from backend.modules.memory.memory_engine import MemoryEngine
 from backend.modules.composer.scene_composer import SceneComposer
 from backend.modules.editor.video_editor import VideoEditor
 from backend.modules.renderer.video_renderer import VideoRenderer
@@ -32,6 +33,7 @@ class Controller:
         self.assets = AssetManager()
         self.quality_engine = QualityEngine()
         self.improvement_engine = ImprovementEngine()
+        self.memory_engine = MemoryEngine()
 
         self.prompt_interpreter = PromptInterpreter()
         self.style_engine = StyleEngine()
@@ -63,6 +65,8 @@ class Controller:
         try:
 
             prompt_data = self.prompt_interpreter.interpret(prompt)
+
+            past_records = self.memory_engine.retrieve_similar(prompt_data)
 
             style = self.style_engine.determine_style(prompt_data)
 
@@ -112,6 +116,7 @@ class Controller:
 
             workflow = {
                 "prompt_analysis": prompt_data,
+                "past_records": past_records,
                 "style": style,
                 "knowledge": knowledge,
                 "video_plan": video_plan,
@@ -135,6 +140,8 @@ class Controller:
                 "suggested_improvements": improvements,
                 "system_health": health
             }
+
+            self.memory_engine.store_video_record(workflow)
 
             return workflow
 
