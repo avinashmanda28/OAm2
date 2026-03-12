@@ -11,6 +11,7 @@ from backend.modules.broll.broll_engine import BRollEngine
 from backend.modules.silence.silence_remover import SilenceRemover
 from backend.modules.hook.hook_detector import HookDetector
 from backend.modules.healing.self_healing import SelfHealingSystem
+from backend.modules.knowledge.knowledge_engine import KnowledgeEngine
 from backend.modules.composer.scene_composer import SceneComposer
 from backend.modules.editor.video_editor import VideoEditor
 from backend.modules.renderer.video_renderer import VideoRenderer
@@ -23,6 +24,7 @@ class Controller:
         self.healing = SelfHealingSystem()
 
         self.prompt_interpreter = PromptInterpreter()
+        self.knowledge_engine = KnowledgeEngine()
         self.video_planner = VideoPlanner()
         self.script_generator = ScriptGenerator()
         self.scene_splitter = SceneSplitter()
@@ -45,11 +47,12 @@ class Controller:
             prompt_data = self.prompt_interpreter.interpret(prompt)
             self.healing.monitor_module("prompt_interpreter", "ok")
 
+            knowledge = self.knowledge_engine.collect_knowledge(prompt_data)
+            self.healing.monitor_module("knowledge_engine", "ok")
+
             video_plan = self.video_planner.create_plan(prompt_data)
-            self.healing.monitor_module("video_planner", "ok")
 
             script = self.script_generator.generate_script(video_plan)
-            self.healing.monitor_module("script_generator", "ok")
 
             hook = self.hook_detector.detect_hook(script)
 
@@ -79,6 +82,7 @@ class Controller:
 
             workflow = {
                 "prompt_analysis": prompt_data,
+                "knowledge": knowledge,
                 "video_plan": video_plan,
                 "hook": hook,
                 "script": script,
@@ -103,4 +107,4 @@ class Controller:
             return {
                 "error": str(e),
                 "system_health": self.healing.check_system_health()
-            }
+        }
