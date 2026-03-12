@@ -13,6 +13,7 @@ from backend.modules.silence.silence_remover import SilenceRemover
 from backend.modules.hook.hook_detector import HookDetector
 from backend.modules.healing.self_healing import SelfHealingSystem
 from backend.modules.knowledge.knowledge_engine import KnowledgeEngine
+from backend.modules.data.data_collector import DataCollector
 from backend.modules.emotion.emotion_engine import EmotionEngine
 from backend.modules.style.style_engine import StyleEngine
 from backend.modules.motion.motion_engine import MotionEngine
@@ -49,6 +50,7 @@ class Controller:
         self.queue = TaskQueue()
 
         self.prompt_interpreter = PromptInterpreter()
+        self.data_collector = DataCollector()
         self.style_engine = StyleEngine()
         self.knowledge_engine = KnowledgeEngine()
         self.video_planner = VideoPlanner()
@@ -78,15 +80,12 @@ class Controller:
         try:
 
             self.supervisor.register_agent(name)
-
             result = func(*args)
-
             return result
 
         except Exception:
 
             self.supervisor.report_failure(name)
-
             self.supervisor.restart_agent(name)
 
             return None
@@ -99,6 +98,12 @@ class Controller:
                 "prompt_interpreter",
                 self.prompt_interpreter.interpret,
                 prompt
+            )
+
+            research_data = self.safe_run(
+                "data_collector",
+                self.data_collector.collect_data,
+                prompt_data
             )
 
             style = self.safe_run(
@@ -191,6 +196,7 @@ class Controller:
 
             workflow = {
                 "prompt_analysis": prompt_data,
+                "research_data": research_data,
                 "style": style,
                 "knowledge": knowledge,
                 "video_plan": video_plan,
