@@ -21,6 +21,7 @@ from backend.modules.quality.quality_engine import QualityEngine
 from backend.modules.improvement.improvement_engine import ImprovementEngine
 from backend.modules.memory.memory_engine import MemoryEngine
 from backend.modules.orchestrator.orchestrator_engine import OrchestratorEngine
+from backend.modules.plugins.plugin_manager import PluginManager
 from backend.modules.composer.scene_composer import SceneComposer
 from backend.modules.editor.video_editor import VideoEditor
 from backend.modules.renderer.video_renderer import VideoRenderer
@@ -36,6 +37,7 @@ class Controller:
         self.improvement_engine = ImprovementEngine()
         self.memory_engine = MemoryEngine()
         self.orchestrator = OrchestratorEngine()
+        self.plugins = PluginManager()
 
         self.prompt_interpreter = PromptInterpreter()
         self.style_engine = StyleEngine()
@@ -74,18 +76,14 @@ class Controller:
             past_records = self.memory_engine.retrieve_similar(prompt_data)
 
             style = self.style_engine.determine_style(prompt_data)
-            self.orchestrator.register_task("style_engine")
-
             knowledge = self.knowledge_engine.collect_knowledge(prompt_data)
-            self.orchestrator.register_task("knowledge_engine")
 
             video_plan = self.video_planner.create_plan(prompt_data)
-            self.orchestrator.register_task("video_planner")
 
             script = self.script_generator.generate_script(video_plan)
-            self.orchestrator.register_task("script_generator")
 
             story = self.story_engine.optimize_story(script)
+
             emotions = self.emotion_engine.analyze_emotions(script)
 
             hook = self.hook_detector.detect_hook(script)
@@ -147,6 +145,7 @@ class Controller:
                 "quality_scores": quality,
                 "suggested_improvements": improvements,
                 "pipeline": self.orchestrator.get_pipeline(),
+                "plugins_loaded": self.plugins.list_plugins(),
                 "system_health": health
             }
 
@@ -159,4 +158,4 @@ class Controller:
             return {
                 "error": str(e),
                 "system_health": self.healing.check_system_health()
-        }
+}
