@@ -25,6 +25,8 @@ from backend.modules.strategy.strategy_engine import StrategyEngine
 from backend.modules.audience.audience_engine import AudienceEngine
 from backend.modules.viral.viral_engine import ViralEngine
 
+from backend.modules.collaboration.collaboration_engine import CollaborationEngine
+
 from backend.modules.emotion.emotion_engine import EmotionEngine
 from backend.modules.style.style_engine import StyleEngine
 from backend.modules.motion.motion_engine import MotionEngine
@@ -63,6 +65,9 @@ class Controller:
         self.strategy_engine = StrategyEngine()
         self.audience_engine = AudienceEngine()
         self.viral_engine = ViralEngine()
+
+        # Collaboration engine
+        self.collaboration_engine = CollaborationEngine()
 
         # Research systems
         self.data_collector = DataCollector()
@@ -175,8 +180,13 @@ class Controller:
             # Expand script with research
             script = self.research_engine.expand_script(script, research_details)
 
+            # Share script with collaboration engine
+            self.collaboration_engine.share_data("script_engine", script)
+
             # Audience analysis
             audience_analysis = self.audience_engine.analyze_audience(script)
+
+            self.collaboration_engine.share_data("audience_engine", audience_analysis)
 
             # Scene splitting
             scenes = self.safe_run(
@@ -237,7 +247,9 @@ class Controller:
             # Viral prediction
             viral_prediction = self.viral_engine.predict_viral_score(script, thumbnail)
 
-            # Platform exports
+            self.collaboration_engine.share_data("viral_engine", viral_prediction)
+
+            # Multi-platform exports
             platform_exports = self.publisher_engine.prepare_platform_exports(rendered_video)
 
             # Quality evaluation
@@ -247,7 +259,7 @@ class Controller:
                 rendered_video
             )
 
-            # Improvements
+            # Improvement suggestions
             improvements = self.safe_run(
                 "improvement_engine",
                 self.improvement_engine.analyze_improvements,
@@ -260,10 +272,13 @@ class Controller:
                 "scenes": scenes
             })
 
+            # Collaboration summary
+            collaboration_summary = self.collaboration_engine.summarize_collaboration()
+
             # System health
             health = self.healing.check_system_health()
 
-            # Cleanup
+            # Cleanup assets
             self.assets.cleanup_assets()
 
             workflow = {
@@ -285,6 +300,7 @@ class Controller:
                 "quality_scores": quality,
                 "analytics": analytics,
                 "suggested_improvements": improvements,
+                "collaboration_summary": collaboration_summary,
                 "agent_status": self.supervisor.get_status(),
                 "system_health": health
             }
