@@ -42,6 +42,7 @@ from backend.modules.supervisor.agent_supervisor import AgentSupervisor
 from backend.modules.analytics.video_analytics import VideoAnalytics
 
 from backend.modules.workflow.workflow_engine import WorkflowEngine
+from backend.modules.parallel.parallel_engine import ParallelEngine
 
 from backend.modules.composer.scene_composer import SceneComposer
 from backend.modules.editor.video_editor import VideoEditor
@@ -53,7 +54,7 @@ class Controller:
 
     def __init__(self):
 
-        # Core system
+        # Core systems
         self.supervisor = AgentSupervisor()
         self.analytics = VideoAnalytics()
         self.healing = SelfHealingSystem()
@@ -62,6 +63,9 @@ class Controller:
         self.workflow_engine = WorkflowEngine()
         self.model_router = ModelRouter()
 
+        # Parallel execution
+        self.parallel_engine = ParallelEngine()
+
         # Intelligence engines
         self.trend_engine = TrendEngine()
         self.idea_engine = IdeaEngine()
@@ -69,12 +73,12 @@ class Controller:
         self.audience_engine = AudienceEngine()
         self.viral_engine = ViralEngine()
 
-        # Research layer
+        # Research systems
         self.data_collector = DataCollector()
         self.knowledge_engine = KnowledgeEngine()
         self.research_engine = ResearchEngine()
 
-        # Planning
+        # Planning engines
         self.prompt_interpreter = PromptInterpreter()
         self.video_planner = VideoPlanner()
         self.script_generator = ScriptGenerator()
@@ -93,7 +97,7 @@ class Controller:
         self.image_generator = ImageGenerator()
         self.voice_generator = VoiceGenerator()
 
-        # Editing
+        # Editing systems
         self.caption_generator = CaptionGenerator()
         self.smart_editor = SmartEditor()
         self.broll_engine = BRollEngine()
@@ -136,20 +140,20 @@ class Controller:
 
         try:
 
-            # Interpret prompt
+            # Prompt interpretation
             prompt_data = self.safe_run(
                 "prompt_interpreter",
                 self.prompt_interpreter.interpret,
                 prompt
             )
 
-            # Decide workflow dynamically
+            # Decide workflow
             workflow_plan = self.workflow_engine.decide_workflow(prompt_data)
 
-            # Detect trends
+            # Trend detection
             trending_topics = self.trend_engine.get_trending_topics()
 
-            # Generate ideas
+            # Idea generation
             ideas = self.idea_engine.generate_ideas(trending_topics)
 
             # Strategy generation
@@ -171,7 +175,7 @@ class Controller:
                 prompt_data
             )
 
-            # Model routing example
+            # Model routing
             script_model = self.model_router.route_task("script")
             image_model = self.model_router.route_task("image")
             voice_model = self.model_router.route_task("voice")
@@ -202,19 +206,16 @@ class Controller:
                 scenes
             )
 
-            # Image generation
-            images = self.safe_run(
-                "image_generator",
-                self.image_generator.generate_images,
-                visuals
-            )
+            # Parallel generation of images and voices
+            tasks = [
+                {"function": self.image_generator.generate_images, "args": [visuals]},
+                {"function": self.voice_generator.generate_voice, "args": [scenes]}
+            ]
 
-            # Voice generation
-            voice_tracks = self.safe_run(
-                "voice_generator",
-                self.voice_generator.generate_voice,
-                scenes
-            )
+            parallel_results = self.parallel_engine.run_tasks(tasks)
+
+            images = parallel_results[0]
+            voice_tracks = parallel_results[1]
 
             # Compose scenes
             composed_scenes = self.safe_run(
@@ -247,7 +248,7 @@ class Controller:
             # Viral score
             viral_prediction = self.viral_engine.predict_viral_score(script, thumbnail)
 
-            # Multi-platform export
+            # Export formats
             platform_exports = self.publisher_engine.prepare_platform_exports(rendered_video)
 
             # Quality check
