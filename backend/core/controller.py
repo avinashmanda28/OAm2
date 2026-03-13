@@ -42,6 +42,7 @@ from backend.modules.marketplace.agent_marketplace import AgentMarketplace
 from backend.modules.director.ai_director import AIDirector
 from backend.modules.consistency.visual_consistency import VisualConsistencyEngine
 from backend.modules.character.character_engine import CharacterEngine
+from backend.modules.retention.retention_optimizer import RetentionOptimizer
 
 from backend.modules.orchestrator.orchestrator_engine import OrchestratorEngine
 from backend.modules.plugins.plugin_manager import PluginManager
@@ -109,7 +110,10 @@ class Controller:
         # Character system
         self.character_engine = CharacterEngine()
 
-        # Create default host character
+        # Retention optimizer
+        self.retention_optimizer = RetentionOptimizer()
+
+        # Create default presenter
         self.character_engine.create_character(
             "host",
             "Professional AI presenter"
@@ -158,7 +162,7 @@ class Controller:
         self.video_editor = VideoEditor()
         self.video_renderer = VideoRenderer()
 
-        # Optimization engines
+        # Optimization
         self.thumbnail_engine = ThumbnailEngine()
         self.seo_engine = SEOEngine()
         self.quality_engine = QualityEngine()
@@ -227,6 +231,10 @@ class Controller:
                 self.script_generator.generate_script,
                 video_plan
             )
+
+            # Retention optimization
+            retention_analysis = self.retention_optimizer.analyze_script(script)
+            script = self.retention_optimizer.optimize_script(script)
 
             experiment_results = self.experiment_engine.run_experiments(script)
             script = experiment_results["best_script"]
@@ -333,6 +341,7 @@ class Controller:
                 "experiment_results": experiment_results,
                 "learning_patterns": learning_patterns,
                 "optimization_report": optimization_report,
+                "retention_analysis": retention_analysis,
                 "available_agents": self.marketplace.list_agents(),
                 "trending_topics": trending_topics,
                 "ideas": ideas,
