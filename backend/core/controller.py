@@ -40,6 +40,7 @@ from backend.modules.experiments.experiment_engine import ExperimentEngine
 from backend.modules.brain.multi_model_brain import MultiModelBrain
 from backend.modules.marketplace.agent_marketplace import AgentMarketplace
 from backend.modules.director.ai_director import AIDirector
+from backend.modules.consistency.visual_consistency import VisualConsistencyEngine
 
 from backend.modules.orchestrator.orchestrator_engine import OrchestratorEngine
 from backend.modules.plugins.plugin_manager import PluginManager
@@ -101,6 +102,9 @@ class Controller:
         # Director
         self.director = AIDirector()
 
+        # Visual consistency
+        self.visual_consistency = VisualConsistencyEngine()
+
         # Intelligence engines
         self.trend_engine = TrendEngine()
         self.idea_engine = IdeaEngine()
@@ -158,7 +162,7 @@ class Controller:
         # Publishing
         self.publisher_engine = PublisherEngine()
 
-        # Register agents
+        # Register core agents
         self.marketplace.register_agent("script_generator", self.script_generator)
         self.marketplace.register_agent("image_generator", self.image_generator)
         self.marketplace.register_agent("voice_generator", self.voice_generator)
@@ -232,6 +236,8 @@ class Controller:
                 self.visual_generator.generate_visuals,
                 scenes
             )
+
+            visuals = self.visual_consistency.enforce_style(visuals)
 
             tasks = [
                 {"function": self.image_generator.generate_images, "args": [visuals]},
@@ -308,6 +314,7 @@ class Controller:
                 "workflow_plan": workflow_plan,
                 "workflow_summary": workflow_summary,
                 "director_plan": direction,
+                "visual_style_profile": self.visual_consistency.get_style_profile(),
                 "ai_brain_models": self.brain.get_model_map(),
                 "experiment_results": experiment_results,
                 "learning_patterns": learning_patterns,
