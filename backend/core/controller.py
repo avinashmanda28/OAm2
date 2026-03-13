@@ -38,6 +38,7 @@ from backend.modules.memory.learning_memory import LearningMemory
 from backend.modules.optimization.self_optimizer import SelfOptimizer
 from backend.modules.experiments.experiment_engine import ExperimentEngine
 from backend.modules.brain.multi_model_brain import MultiModelBrain
+from backend.modules.marketplace.agent_marketplace import AgentMarketplace
 
 from backend.modules.orchestrator.orchestrator_engine import OrchestratorEngine
 from backend.modules.plugins.plugin_manager import PluginManager
@@ -61,7 +62,7 @@ class Controller:
 
     def __init__(self):
 
-        # System supervision
+        # Core monitoring
         self.supervisor = AgentSupervisor()
         self.analytics = VideoAnalytics()
         self.healing = SelfHealingSystem()
@@ -79,19 +80,22 @@ class Controller:
         # Resource manager
         self.resource_manager = ResourceManager()
 
-        # Queue
+        # Task queue
         self.queue = TaskQueue()
 
         # Memory systems
         self.memory_engine = MemoryEngine()
         self.learning_memory = LearningMemory()
 
-        # Optimization
+        # Optimization engines
         self.self_optimizer = SelfOptimizer()
         self.experiment_engine = ExperimentEngine()
 
-        # AI brain
+        # AI Brain
         self.brain = MultiModelBrain()
+
+        # Agent Marketplace
+        self.marketplace = AgentMarketplace()
 
         # Intelligence engines
         self.trend_engine = TrendEngine()
@@ -116,7 +120,7 @@ class Controller:
         self.style_engine = StyleEngine()
         self.motion_engine = MotionEngine()
 
-        # Scene generation
+        # Scene engines
         self.scene_splitter = SceneSplitter()
         self.visual_generator = VisualPromptGenerator()
 
@@ -136,7 +140,7 @@ class Controller:
         self.video_editor = VideoEditor()
         self.video_renderer = VideoRenderer()
 
-        # Optimization
+        # Optimization engines
         self.thumbnail_engine = ThumbnailEngine()
         self.seo_engine = SEOEngine()
         self.quality_engine = QualityEngine()
@@ -149,6 +153,13 @@ class Controller:
 
         # Publishing
         self.publisher_engine = PublisherEngine()
+
+        # Register core agents in marketplace
+        self.marketplace.register_agent("script_generator", self.script_generator)
+        self.marketplace.register_agent("image_generator", self.image_generator)
+        self.marketplace.register_agent("voice_generator", self.voice_generator)
+        self.marketplace.register_agent("video_editor", self.video_editor)
+        self.marketplace.register_agent("renderer", self.video_renderer)
 
     def safe_run(self, name, func, *args):
 
@@ -167,7 +178,6 @@ class Controller:
 
             resource_state = self.resource_manager.wait_for_resources()
 
-            # Prompt interpretation
             prompt_data = self.safe_run(
                 "prompt_interpreter",
                 self.prompt_interpreter.interpret,
@@ -176,20 +186,13 @@ class Controller:
 
             workflow_plan = self.workflow_engine.decide_workflow(prompt_data)
 
-            # Trends
             trending_topics = self.trend_engine.get_trending_topics()
-
-            # Ideas
             ideas = self.idea_engine.generate_ideas(trending_topics)
-
-            # Strategy
             strategy = self.strategy_engine.build_strategy(ideas)
 
-            # AI brain selects models
             script_model = self.brain.select_model("script")
             research_model = self.brain.select_model("research")
 
-            # Research
             research_details = self.research_engine.research_topic(prompt_data)
 
             research_data = self.safe_run(
@@ -198,44 +201,37 @@ class Controller:
                 prompt_data
             )
 
-            # Video plan
             video_plan = self.safe_run(
                 "video_planner",
                 self.video_planner.create_plan,
                 prompt_data
             )
 
-            # Script
             script = self.safe_run(
                 "script_generator",
                 self.script_generator.generate_script,
                 video_plan
             )
 
-            # Experiments
             experiment_results = self.experiment_engine.run_experiments(script)
             script = experiment_results["best_script"]
 
             script = self.research_engine.expand_script(script, research_details)
 
-            # Audience analysis
             audience_analysis = self.audience_engine.analyze_audience(script)
 
-            # Scenes
             scenes = self.safe_run(
                 "scene_splitter",
                 self.scene_splitter.split_scenes,
                 script
             )
 
-            # Visual prompts
             visuals = self.safe_run(
                 "visual_generator",
                 self.visual_generator.generate_visuals,
                 scenes
             )
 
-            # Parallel generation
             tasks = [
                 {"function": self.image_generator.generate_images, "args": [visuals]},
                 {"function": self.voice_generator.generate_voice, "args": [scenes]}
@@ -246,7 +242,6 @@ class Controller:
             images = results[0]
             voice_tracks = results[1]
 
-            # Compose scenes
             composed_scenes = self.safe_run(
                 "scene_composer",
                 self.scene_composer.compose_scenes,
@@ -254,30 +249,23 @@ class Controller:
                 voice_tracks
             )
 
-            # Edit video
             timeline = self.safe_run(
                 "video_editor",
                 self.video_editor.assemble_video,
                 composed_scenes
             )
 
-            # Render queue
             self.queue.add_task(self.video_renderer.render_video, [timeline])
             rendered_video = "queued_render"
 
-            # Thumbnail
             thumbnail = self.thumbnail_engine.generate_thumbnail(scenes)
 
-            # SEO
             metadata = self.seo_engine.generate_metadata(prompt_data, script)
 
-            # Viral prediction
             viral_prediction = self.viral_engine.predict_viral_score(script, thumbnail)
 
-            # Platform export
             platform_exports = self.publisher_engine.prepare_platform_exports(rendered_video)
 
-            # Quality
             quality = self.safe_run(
                 "quality_engine",
                 self.quality_engine.evaluate_video,
@@ -290,13 +278,11 @@ class Controller:
                 quality
             )
 
-            # Analytics
             analytics = self.analytics.analyze_video({
                 "script": script,
                 "scenes": scenes
             })
 
-            # Learning
             self.learning_memory.store_video_data({
                 "topic": prompt,
                 "script": script
@@ -304,7 +290,6 @@ class Controller:
 
             learning_patterns = self.learning_memory.analyze_patterns()
 
-            # Optimization
             optimization_report = self.self_optimizer.analyze_video({
                 "topic": prompt,
                 "script": script
@@ -324,6 +309,7 @@ class Controller:
                 "experiment_results": experiment_results,
                 "learning_patterns": learning_patterns,
                 "optimization_report": optimization_report,
+                "available_agents": self.marketplace.list_agents(),
                 "trending_topics": trending_topics,
                 "ideas": ideas,
                 "strategy": strategy,
