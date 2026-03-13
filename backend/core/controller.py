@@ -37,6 +37,7 @@ from backend.modules.memory.learning_memory import LearningMemory
 
 from backend.modules.optimization.self_optimizer import SelfOptimizer
 from backend.modules.experiments.experiment_engine import ExperimentEngine
+from backend.modules.brain.multi_model_brain import MultiModelBrain
 
 from backend.modules.orchestrator.orchestrator_engine import OrchestratorEngine
 from backend.modules.plugins.plugin_manager import PluginManager
@@ -60,34 +61,37 @@ class Controller:
 
     def __init__(self):
 
-        # Core monitoring
+        # System supervision
         self.supervisor = AgentSupervisor()
         self.analytics = VideoAnalytics()
         self.healing = SelfHealingSystem()
 
-        # Communication
+        # Communication system
         self.agent_bus = AgentBus()
 
-        # Workflow and routing
+        # Workflow
         self.workflow_engine = WorkflowEngine()
         self.model_router = ModelRouter()
 
-        # Parallel system
+        # Parallel processing
         self.parallel_engine = ParallelEngine()
 
         # Resource manager
         self.resource_manager = ResourceManager()
 
-        # Task queue
+        # Queue
         self.queue = TaskQueue()
 
         # Memory systems
         self.memory_engine = MemoryEngine()
         self.learning_memory = LearningMemory()
 
-        # Optimization systems
+        # Optimization
         self.self_optimizer = SelfOptimizer()
         self.experiment_engine = ExperimentEngine()
+
+        # AI brain
+        self.brain = MultiModelBrain()
 
         # Intelligence engines
         self.trend_engine = TrendEngine()
@@ -127,12 +131,12 @@ class Controller:
         self.silence_remover = SilenceRemover()
         self.hook_detector = HookDetector()
 
-        # Composition engines
+        # Composition
         self.scene_composer = SceneComposer()
         self.video_editor = VideoEditor()
         self.video_renderer = VideoRenderer()
 
-        # Optimization engines
+        # Optimization
         self.thumbnail_engine = ThumbnailEngine()
         self.seo_engine = SEOEngine()
         self.quality_engine = QualityEngine()
@@ -161,7 +165,6 @@ class Controller:
 
         try:
 
-            # Resource check
             resource_state = self.resource_manager.wait_for_resources()
 
             # Prompt interpretation
@@ -171,19 +174,20 @@ class Controller:
                 prompt
             )
 
-            self.agent_bus.publish("prompt_data", prompt_data)
-
-            # Workflow planning
             workflow_plan = self.workflow_engine.decide_workflow(prompt_data)
 
-            # Trend detection
+            # Trends
             trending_topics = self.trend_engine.get_trending_topics()
 
-            # Idea generation
+            # Ideas
             ideas = self.idea_engine.generate_ideas(trending_topics)
 
             # Strategy
             strategy = self.strategy_engine.build_strategy(ideas)
+
+            # AI brain selects models
+            script_model = self.brain.select_model("script")
+            research_model = self.brain.select_model("research")
 
             # Research
             research_details = self.research_engine.research_topic(prompt_data)
@@ -201,25 +205,23 @@ class Controller:
                 prompt_data
             )
 
-            # Script generation
+            # Script
             script = self.safe_run(
                 "script_generator",
                 self.script_generator.generate_script,
                 video_plan
             )
 
-            # Run AI experiment variations
+            # Experiments
             experiment_results = self.experiment_engine.run_experiments(script)
             script = experiment_results["best_script"]
-
-            self.agent_bus.publish("script", script)
 
             script = self.research_engine.expand_script(script, research_details)
 
             # Audience analysis
             audience_analysis = self.audience_engine.analyze_audience(script)
 
-            # Scene splitting
+            # Scenes
             scenes = self.safe_run(
                 "scene_splitter",
                 self.scene_splitter.split_scenes,
@@ -252,7 +254,7 @@ class Controller:
                 voice_tracks
             )
 
-            # Assemble video
+            # Edit video
             timeline = self.safe_run(
                 "video_editor",
                 self.video_editor.assemble_video,
@@ -266,16 +268,16 @@ class Controller:
             # Thumbnail
             thumbnail = self.thumbnail_engine.generate_thumbnail(scenes)
 
-            # SEO metadata
+            # SEO
             metadata = self.seo_engine.generate_metadata(prompt_data, script)
 
             # Viral prediction
             viral_prediction = self.viral_engine.predict_viral_score(script, thumbnail)
 
-            # Platform exports
+            # Platform export
             platform_exports = self.publisher_engine.prepare_platform_exports(rendered_video)
 
-            # Quality analysis
+            # Quality
             quality = self.safe_run(
                 "quality_engine",
                 self.quality_engine.evaluate_video,
@@ -294,7 +296,7 @@ class Controller:
                 "scenes": scenes
             })
 
-            # Learning memory
+            # Learning
             self.learning_memory.store_video_data({
                 "topic": prompt,
                 "script": script
@@ -302,13 +304,14 @@ class Controller:
 
             learning_patterns = self.learning_memory.analyze_patterns()
 
-            # Self optimization
+            # Optimization
             optimization_report = self.self_optimizer.analyze_video({
                 "topic": prompt,
                 "script": script
             })
 
             workflow_summary = self.workflow_engine.summarize_workflow(workflow_plan)
+
             system_health = self.healing.check_system_health()
 
             self.assets.cleanup_assets()
@@ -317,6 +320,7 @@ class Controller:
                 "resource_status": resource_state,
                 "workflow_plan": workflow_plan,
                 "workflow_summary": workflow_summary,
+                "ai_brain_models": self.brain.get_model_map(),
                 "experiment_results": experiment_results,
                 "learning_patterns": learning_patterns,
                 "optimization_report": optimization_report,
