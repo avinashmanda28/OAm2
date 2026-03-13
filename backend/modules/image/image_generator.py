@@ -1,35 +1,22 @@
 import os
 
+def generate_images(prompts):
 
-class ImageGenerator:
+    os.makedirs("backend/temp/images", exist_ok=True)
 
-    def __init__(self):
+    images = []
 
-        self.output_folder = "backend/temp/images"
+    for i, prompt in enumerate(prompts):
 
-        os.makedirs(self.output_folder, exist_ok=True)
+        path = f"backend/temp/images/scene_{i}.png"
 
-    def generate_images(self, visual_data):
+        # placeholder generation
+        with open(path, "w") as f:
+            f.write(prompt)
 
-        scenes = visual_data["visual_scenes"]
+        images.append({
+            "scene_id": i,
+            "image_file": path
+        })
 
-        generated_images = []
-
-        for scene in scenes:
-
-            scene_id = scene["scene_id"]
-
-            filename = f"{self.output_folder}/scene_{scene_id}.txt"
-
-            # placeholder image generation
-            with open(filename, "w") as f:
-                f.write(scene["visual_prompt"])
-
-            generated_images.append({
-                "scene_id": scene_id,
-                "image_file": filename
-            })
-
-        return {
-            "images": generated_images
-          }
+    return images
