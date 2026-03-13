@@ -3,33 +3,40 @@ class ModelRouter:
     def __init__(self):
 
         self.models = {
-            "prompt": "llama",
-            "script": "mixtral",
-            "knowledge": "mistral",
-            "style": "gemma",
-            "emotion": "llama"
+            "script": ["llama3", "mistral", "fallback_llm"],
+            "planning": ["mistral", "llama3", "fallback_llm"],
+            "image": ["stable_diffusion", "sd_light", "fallback_image"],
+            "voice": ["xtts", "coqui", "fallback_voice"]
         }
 
-    def get_model(self, task):
+    def choose_model(self, task):
 
-        model = self.models.get(task)
+        if task not in self.models:
+            return None
+
+        return self.models[task][0]
+
+    def get_fallback(self, task, attempt):
+
+        try:
+            return self.models[task][attempt]
+        except:
+            return None
+
+    def route_task(self, task):
+
+        model = self.choose_model(task)
 
         return {
             "task": task,
-            "model_selected": model
+            "selected_model": model
         }
 
-    def register_model(self, task, model_name):
-
-        self.models[task] = model_name
+    def get_pipeline(self):
 
         return {
-            "registered": task,
-            "model": model_name
+            "script": self.models["script"],
+            "planning": self.models["planning"],
+            "image": self.models["image"],
+            "voice": self.models["voice"]
         }
-
-    def list_models(self):
-
-        return {
-            "models": self.models
-      }
