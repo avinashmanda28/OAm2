@@ -1,12 +1,16 @@
 from backend.modules.prompt.prompt_interpreter import PromptInterpreter
+from backend.modules.prompt_expansion.prompt_expander import PromptExpansionEngine
+
 from backend.modules.planner.video_planner import VideoPlanner
 from backend.modules.script.script_generator import ScriptGenerator
 from backend.modules.story.story_engine import StoryEngine
 from backend.modules.scene.scene_splitter import SceneSplitter
 from backend.modules.visual.visual_prompt_generator import VisualPromptGenerator
+
 from backend.modules.voice.voice_generator import VoiceGenerator
 from backend.modules.image.image_generator import ImageGenerator
 from backend.modules.caption.caption_generator import CaptionGenerator
+
 from backend.modules.smart_edit.smart_editor import SmartEditor
 from backend.modules.broll.broll_engine import BRollEngine
 from backend.modules.silence.silence_remover import SilenceRemover
@@ -128,14 +132,12 @@ class Controller:
         # Content strategy
         self.content_strategy_engine = ContentStrategyEngine()
 
-        # Collaboration engine (multi-agent system)
+        # Collaboration engine
         self.collaboration_engine = CollaborationEngine()
 
-        # Default host
-        self.character_engine.create_character(
-            "host",
-            "Professional AI presenter"
-        )
+        # Prompt engines
+        self.prompt_interpreter = PromptInterpreter()
+        self.prompt_expander = PromptExpansionEngine()
 
         # Intelligence engines
         self.trend_engine = TrendEngine()
@@ -150,7 +152,6 @@ class Controller:
         self.research_engine = ResearchEngine()
 
         # Planning
-        self.prompt_interpreter = PromptInterpreter()
         self.video_planner = VideoPlanner()
         self.script_generator = ScriptGenerator()
         self.story_engine = StoryEngine()
@@ -194,201 +195,87 @@ class Controller:
         # Publishing
         self.publisher_engine = PublisherEngine()
 
-        # Register collaboration agents
-        self.collaboration_engine.register_agent("planner", self.video_planner)
-        self.collaboration_engine.register_agent("script", self.script_generator)
-        self.collaboration_engine.register_agent("visual", self.visual_generator)
-        self.collaboration_engine.register_agent("editor", self.video_editor)
-
-    def safe_run(self, name, func, *args):
-
-        try:
-            self.supervisor.register_agent(name)
-            return func(*args)
-
-        except Exception:
-            self.supervisor.report_failure(name)
-            self.supervisor.restart_agent(name)
-            return None
-
     def process_prompt(self, prompt: str):
 
         try:
 
-            resource_state = self.resource_manager.wait_for_resources()
+            # Prompt analysis
+            prompt_data = self.prompt_interpreter.interpret(prompt)
 
-            prompt_data = self.safe_run(
-                "prompt_interpreter",
-                self.prompt_interpreter.interpret,
-                prompt
-            )
+            # Prompt expansion
+            expanded_prompt = self.prompt_expander.expand_prompt(prompt)
 
-            workflow_plan = self.workflow_engine.decide_workflow(prompt_data)
+            # Trend analysis
+            trends = self.trend_engine.get_trending_topics()
 
-            trending_topics = self.trend_engine.get_trending_topics()
-            ideas = self.idea_engine.generate_ideas(trending_topics)
+            ideas = self.idea_engine.generate_ideas(trends)
+
             strategy = self.strategy_engine.build_strategy(ideas)
 
-            research_details = self.research_engine.research_topic(prompt_data)
+            research = self.research_engine.research_topic(prompt_data)
 
-            research_data = self.safe_run(
-                "data_collector",
-                self.data_collector.collect_data,
-                prompt_data
-            )
+            # Video planning
+            video_plan = self.video_planner.create_plan(prompt_data)
 
-            video_plan = self.safe_run(
-                "video_planner",
-                self.video_planner.create_plan,
-                prompt_data
-            )
+            # Script generation
+            script = self.script_generator.generate_script(video_plan)
 
-            script = self.safe_run(
-                "script_generator",
-                self.script_generator.generate_script,
-                video_plan
-            )
-
-            retention_analysis = self.retention_optimizer.analyze_script(script)
             script = self.retention_optimizer.optimize_script(script)
 
-            experiment_results = self.experiment_engine.run_experiments(script)
-            script = experiment_results["best_script"]
+            # Scene creation
+            scenes = self.scene_splitter.split_scenes(script)
 
-            direction = self.director.direct_video(script)
+            visuals = self.visual_generator.generate_visuals(scenes)
 
-            script = self.research_engine.expand_script(script, research_details)
+            # Media generation
+            images = self.image_generator.generate_images(visuals)
 
-            audience_analysis = self.audience_engine.analyze_audience(script)
+            voice = self.voice_generator.generate_voice(scenes)
 
-            scenes = direction["directed_scenes"]
+            # Scene composition
+            composed_scenes = self.scene_composer.compose_scenes(images, voice)
 
-            scenes = self.character_engine.assign_character_to_scene(
-                scenes,
-                "host"
-            )
+            # Video editing
+            timeline = self.video_editor.assemble_video(composed_scenes)
 
-            visuals = self.safe_run(
-                "visual_generator",
-                self.visual_generator.generate_visuals,
-                scenes
-            )
+            # Render video
+            rendered_video = self.video_renderer.render_video(timeline)
 
-            visuals = self.style_consistency_engine.enforce_style(visuals)
-
-            tasks = [
-                {"function": self.image_generator.generate_images, "args": [visuals]},
-                {"function": self.voice_generator.generate_voice, "args": [scenes]}
-            ]
-
-            results = self.parallel_engine.run_tasks(tasks)
-
-            images = results[0]
-            voice_tracks = results[1]
-
-            composed_scenes = self.safe_run(
-                "scene_composer",
-                self.scene_composer.compose_scenes,
-                images,
-                voice_tracks
-            )
-
-            timeline = self.safe_run(
-                "video_editor",
-                self.video_editor.assemble_video,
-                composed_scenes
-            )
-
-            self.queue.add_task(self.video_renderer.render_video, [timeline])
-
-            rendered_video = "queued_render"
-
+            # Thumbnail
             thumbnail = self.thumbnail_engine.generate_thumbnail(scenes)
 
-            chapters = self.chapter_engine.generate_chapters(scenes)
-
+            # SEO
             metadata = self.seo_engine.generate_metadata(prompt_data, script)
 
-            viral_prediction = self.viral_engine.predict_viral_score(script, thumbnail)
+            # Quality check
+            quality = self.quality_engine.evaluate_video(rendered_video)
 
-            platform_exports = self.platform_optimizer.optimize_for_platform(rendered_video)
+            # Improvements
+            improvements = self.improvement_engine.analyze_improvements(quality)
 
-            quality = self.safe_run(
-                "quality_engine",
-                self.quality_engine.evaluate_video,
-                rendered_video
-            )
-
-            improvements = self.safe_run(
-                "improvement_engine",
-                self.improvement_engine.analyze_improvements,
-                quality
-            )
-
+            # Analytics
             analytics = self.analytics.analyze_video({
                 "script": script,
                 "scenes": scenes
             })
 
-            self.learning_memory.store_video_data({
-                "topic": prompt,
-                "script": script
-            })
-
-            learning_patterns = self.learning_memory.analyze_patterns()
-
-            optimization_report = self.self_optimizer.analyze_video({
-                "topic": prompt,
-                "script": script
-            })
-
-            workflow_summary = self.workflow_engine.summarize_workflow(workflow_plan)
-
-            system_health = self.healing.check_system_health()
-
-            self.assets.cleanup_assets()
-
-            # Record strategy
-            self.content_strategy_engine.record_video({
-                "topic": prompt
-            })
-
-            next_video_strategy = self.content_strategy_engine.suggest_next_video()
-
             result = {
-                "resource_status": resource_state,
-                "workflow_plan": workflow_plan,
-                "workflow_summary": workflow_summary,
-                "director_plan": direction,
-                "visual_style_profile": self.style_consistency_engine.get_style_profile(),
-                "characters": self.character_engine.list_characters(),
-                "retention_analysis": retention_analysis,
-                "chapters": chapters,
-                "next_video_strategy": next_video_strategy,
-                "registered_agents": self.collaboration_engine.list_agents(),
-                "trending_topics": trending_topics,
+                "prompt": prompt,
+                "expanded_prompt": expanded_prompt,
+                "trends": trends,
                 "ideas": ideas,
                 "strategy": strategy,
-                "prompt_analysis": prompt_data,
-                "research_details": research_details,
-                "research_data": research_data,
+                "research": research,
                 "video_plan": video_plan,
                 "script": script,
-                "audience_analysis": audience_analysis,
                 "scenes": scenes,
                 "thumbnail": thumbnail,
-                "seo_metadata": metadata,
-                "viral_prediction": viral_prediction,
-                "rendered_video": rendered_video,
-                "platform_outputs": platform_exports,
-                "quality_scores": quality,
-                "analytics": analytics,
-                "suggested_improvements": improvements,
-                "agent_status": self.supervisor.get_status(),
-                "system_health": system_health
+                "seo": metadata,
+                "video": rendered_video,
+                "quality": quality,
+                "improvements": improvements,
+                "analytics": analytics
             }
-
-            self.memory_engine.store_video_record(result)
 
             return result
 
