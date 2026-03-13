@@ -36,6 +36,7 @@ from backend.modules.memory.memory_engine import MemoryEngine
 from backend.modules.memory.learning_memory import LearningMemory
 
 from backend.modules.optimization.self_optimizer import SelfOptimizer
+from backend.modules.experiments.experiment_engine import ExperimentEngine
 
 from backend.modules.orchestrator.orchestrator_engine import OrchestratorEngine
 from backend.modules.plugins.plugin_manager import PluginManager
@@ -64,14 +65,14 @@ class Controller:
         self.analytics = VideoAnalytics()
         self.healing = SelfHealingSystem()
 
-        # Communication system
+        # Communication
         self.agent_bus = AgentBus()
 
-        # Workflow & routing
+        # Workflow and routing
         self.workflow_engine = WorkflowEngine()
         self.model_router = ModelRouter()
 
-        # Parallel processing
+        # Parallel system
         self.parallel_engine = ParallelEngine()
 
         # Resource manager
@@ -80,10 +81,13 @@ class Controller:
         # Task queue
         self.queue = TaskQueue()
 
-        # Learning systems
+        # Memory systems
         self.memory_engine = MemoryEngine()
         self.learning_memory = LearningMemory()
+
+        # Optimization systems
         self.self_optimizer = SelfOptimizer()
+        self.experiment_engine = ExperimentEngine()
 
         # Intelligence engines
         self.trend_engine = TrendEngine()
@@ -116,14 +120,14 @@ class Controller:
         self.image_generator = ImageGenerator()
         self.voice_generator = VoiceGenerator()
 
-        # Editing systems
+        # Editing engines
         self.caption_generator = CaptionGenerator()
         self.smart_editor = SmartEditor()
         self.broll_engine = BRollEngine()
         self.silence_remover = SilenceRemover()
         self.hook_detector = HookDetector()
 
-        # Composition
+        # Composition engines
         self.scene_composer = SceneComposer()
         self.video_editor = VideoEditor()
         self.video_renderer = VideoRenderer()
@@ -169,16 +173,14 @@ class Controller:
 
             self.agent_bus.publish("prompt_data", prompt_data)
 
-            # Workflow decision
+            # Workflow planning
             workflow_plan = self.workflow_engine.decide_workflow(prompt_data)
 
             # Trend detection
             trending_topics = self.trend_engine.get_trending_topics()
-            self.agent_bus.publish("trends", trending_topics)
 
             # Idea generation
             ideas = self.idea_engine.generate_ideas(trending_topics)
-            self.agent_bus.publish("ideas", ideas)
 
             # Strategy
             strategy = self.strategy_engine.build_strategy(ideas)
@@ -192,17 +194,12 @@ class Controller:
                 prompt_data
             )
 
-            # Video planning
+            # Video plan
             video_plan = self.safe_run(
                 "video_planner",
                 self.video_planner.create_plan,
                 prompt_data
             )
-
-            # Model routing
-            script_model = self.model_router.route_task("script")
-            image_model = self.model_router.route_task("image")
-            voice_model = self.model_router.route_task("voice")
 
             # Script generation
             script = self.safe_run(
@@ -210,6 +207,10 @@ class Controller:
                 self.script_generator.generate_script,
                 video_plan
             )
+
+            # Run AI experiment variations
+            experiment_results = self.experiment_engine.run_experiments(script)
+            script = experiment_results["best_script"]
 
             self.agent_bus.publish("script", script)
 
@@ -225,8 +226,6 @@ class Controller:
                 script
             )
 
-            self.agent_bus.publish("scenes", scenes)
-
             # Visual prompts
             visuals = self.safe_run(
                 "visual_generator",
@@ -240,10 +239,10 @@ class Controller:
                 {"function": self.voice_generator.generate_voice, "args": [scenes]}
             ]
 
-            parallel_results = self.parallel_engine.run_tasks(tasks)
+            results = self.parallel_engine.run_tasks(tasks)
 
-            images = parallel_results[0]
-            voice_tracks = parallel_results[1]
+            images = results[0]
+            voice_tracks = results[1]
 
             # Compose scenes
             composed_scenes = self.safe_run(
@@ -253,30 +252,30 @@ class Controller:
                 voice_tracks
             )
 
-            # Edit video
+            # Assemble video
             timeline = self.safe_run(
                 "video_editor",
                 self.video_editor.assemble_video,
                 composed_scenes
             )
 
-            # Queue render
+            # Render queue
             self.queue.add_task(self.video_renderer.render_video, [timeline])
             rendered_video = "queued_render"
 
             # Thumbnail
             thumbnail = self.thumbnail_engine.generate_thumbnail(scenes)
 
-            # SEO
+            # SEO metadata
             metadata = self.seo_engine.generate_metadata(prompt_data, script)
 
             # Viral prediction
             viral_prediction = self.viral_engine.predict_viral_score(script, thumbnail)
 
-            # Publishing formats
+            # Platform exports
             platform_exports = self.publisher_engine.prepare_platform_exports(rendered_video)
 
-            # Quality evaluation
+            # Quality analysis
             quality = self.safe_run(
                 "quality_engine",
                 self.quality_engine.evaluate_video,
@@ -318,8 +317,7 @@ class Controller:
                 "resource_status": resource_state,
                 "workflow_plan": workflow_plan,
                 "workflow_summary": workflow_summary,
-                "model_pipeline": self.model_router.get_pipeline(),
-                "queue_pending_tasks": self.queue.pending_tasks(),
+                "experiment_results": experiment_results,
                 "learning_patterns": learning_patterns,
                 "optimization_report": optimization_report,
                 "trending_topics": trending_topics,
@@ -341,8 +339,7 @@ class Controller:
                 "analytics": analytics,
                 "suggested_improvements": improvements,
                 "agent_status": self.supervisor.get_status(),
-                "system_health": system_health,
-                "active_channels": self.agent_bus.list_channels()
+                "system_health": system_health
             }
 
             self.memory_engine.store_video_record(result)
