@@ -43,6 +43,7 @@ from backend.modules.director.ai_director import AIDirector
 from backend.modules.consistency.visual_consistency import VisualConsistencyEngine
 from backend.modules.character.character_engine import CharacterEngine
 from backend.modules.retention.retention_optimizer import RetentionOptimizer
+from backend.modules.chapters.chapter_engine import ChapterEngine
 
 from backend.modules.orchestrator.orchestrator_engine import OrchestratorEngine
 from backend.modules.plugins.plugin_manager import PluginManager
@@ -113,7 +114,10 @@ class Controller:
         # Retention optimizer
         self.retention_optimizer = RetentionOptimizer()
 
-        # Create default presenter
+        # Chapter generator
+        self.chapter_engine = ChapterEngine()
+
+        # Default presenter
         self.character_engine.create_character(
             "host",
             "Professional AI presenter"
@@ -232,7 +236,6 @@ class Controller:
                 video_plan
             )
 
-            # Retention optimization
             retention_analysis = self.retention_optimizer.analyze_script(script)
             script = self.retention_optimizer.optimize_script(script)
 
@@ -289,6 +292,8 @@ class Controller:
 
             thumbnail = self.thumbnail_engine.generate_thumbnail(scenes)
 
+            chapters = self.chapter_engine.generate_chapters(scenes)
+
             metadata = self.seo_engine.generate_metadata(prompt_data, script)
 
             viral_prediction = self.viral_engine.predict_viral_score(script, thumbnail)
@@ -337,11 +342,12 @@ class Controller:
                 "director_plan": direction,
                 "visual_style_profile": self.visual_consistency.get_style_profile(),
                 "characters": self.character_engine.list_characters(),
+                "retention_analysis": retention_analysis,
+                "chapters": chapters,
                 "ai_brain_models": self.brain.get_model_map(),
                 "experiment_results": experiment_results,
                 "learning_patterns": learning_patterns,
                 "optimization_report": optimization_report,
-                "retention_analysis": retention_analysis,
                 "available_agents": self.marketplace.list_agents(),
                 "trending_topics": trending_topics,
                 "ideas": ideas,
