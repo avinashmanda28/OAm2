@@ -74,6 +74,9 @@ class Controller:
         # Resource manager
         self.resource_manager = ResourceManager()
 
+        # Task queue
+        self.queue = TaskQueue()
+
         # Intelligence engines
         self.trend_engine = TrendEngine()
         self.idea_engine = IdeaEngine()
@@ -81,7 +84,7 @@ class Controller:
         self.audience_engine = AudienceEngine()
         self.viral_engine = ViralEngine()
 
-        # Research layer
+        # Research engines
         self.data_collector = DataCollector()
         self.knowledge_engine = KnowledgeEngine()
         self.research_engine = ResearchEngine()
@@ -97,7 +100,7 @@ class Controller:
         self.style_engine = StyleEngine()
         self.motion_engine = MotionEngine()
 
-        # Scene systems
+        # Scene generation
         self.scene_splitter = SceneSplitter()
         self.visual_generator = VisualPromptGenerator()
 
@@ -128,7 +131,6 @@ class Controller:
         self.memory_engine = MemoryEngine()
         self.orchestrator = OrchestratorEngine()
         self.plugins = PluginManager()
-        self.queue = TaskQueue()
 
         # Publishing
         self.publisher_engine = PublisherEngine()
@@ -158,21 +160,20 @@ class Controller:
                 prompt
             )
 
-            # Publish prompt data for agents
             self.agent_bus.publish("prompt_data", prompt_data)
 
-            # Decide workflow
+            # Workflow decision
             workflow_plan = self.workflow_engine.decide_workflow(prompt_data)
 
-            # Trends
+            # Trend detection
             trending_topics = self.trend_engine.get_trending_topics()
             self.agent_bus.publish("trends", trending_topics)
 
-            # Ideas
+            # Idea generation
             ideas = self.idea_engine.generate_ideas(trending_topics)
             self.agent_bus.publish("ideas", ideas)
 
-            # Strategy
+            # Strategy generation
             strategy = self.strategy_engine.build_strategy(ideas)
 
             # Research
@@ -203,7 +204,6 @@ class Controller:
                 video_plan
             )
 
-            # Publish script to agent bus
             self.agent_bus.publish("script", script)
 
             script = self.research_engine.expand_script(script, research_details)
@@ -218,7 +218,6 @@ class Controller:
                 script
             )
 
-            # Publish scenes
             self.agent_bus.publish("scenes", scenes)
 
             # Visual prompts
@@ -228,7 +227,7 @@ class Controller:
                 scenes
             )
 
-            # Parallel image + voice generation
+            # Parallel generation (images + voices)
             tasks = [
                 {"function": self.image_generator.generate_images, "args": [visuals]},
                 {"function": self.voice_generator.generate_voice, "args": [scenes]}
@@ -254,26 +253,24 @@ class Controller:
                 composed_scenes
             )
 
-            # Rendering
-            rendered_video = self.safe_run(
-                "video_renderer",
-                self.video_renderer.render_video,
-                timeline
-            )
+            # Queue rendering task
+            self.queue.add_task(self.video_renderer.render_video, [timeline])
+
+            rendered_video = "queued_render"
 
             # Thumbnail
             thumbnail = self.thumbnail_engine.generate_thumbnail(scenes)
 
-            # SEO
+            # SEO metadata
             metadata = self.seo_engine.generate_metadata(prompt_data, script)
 
             # Viral prediction
             viral_prediction = self.viral_engine.predict_viral_score(script, thumbnail)
 
-            # Multi-platform exports
+            # Export formats
             platform_exports = self.publisher_engine.prepare_platform_exports(rendered_video)
 
-            # Quality evaluation
+            # Quality check
             quality = self.safe_run(
                 "quality_engine",
                 self.quality_engine.evaluate_video,
@@ -296,7 +293,6 @@ class Controller:
 
             system_health = self.healing.check_system_health()
 
-            # Cleanup temporary assets
             self.assets.cleanup_assets()
 
             result = {
@@ -304,6 +300,7 @@ class Controller:
                 "workflow_plan": workflow_plan,
                 "workflow_summary": workflow_summary,
                 "model_pipeline": self.model_router.get_pipeline(),
+                "queue_pending_tasks": self.queue.pending_tasks(),
                 "trending_topics": trending_topics,
                 "ideas": ideas,
                 "strategy": strategy,
