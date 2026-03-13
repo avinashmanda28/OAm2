@@ -22,6 +22,7 @@ from backend.modules.trends.trend_engine import TrendEngine
 from backend.modules.ideas.idea_engine import IdeaEngine
 from backend.modules.strategy.strategy_engine import StrategyEngine
 from backend.modules.audience.audience_engine import AudienceEngine
+from backend.modules.viral.viral_engine import ViralEngine
 
 from backend.modules.emotion.emotion_engine import EmotionEngine
 from backend.modules.style.style_engine import StyleEngine
@@ -55,13 +56,14 @@ class Controller:
         self.analytics = VideoAnalytics()
         self.healing = SelfHealingSystem()
 
-        # Trend + idea + strategy engines
+        # Intelligence engines
         self.trend_engine = TrendEngine()
         self.idea_engine = IdeaEngine()
         self.strategy_engine = StrategyEngine()
         self.audience_engine = AudienceEngine()
+        self.viral_engine = ViralEngine()
 
-        # Data + knowledge
+        # Research systems
         self.data_collector = DataCollector()
         self.knowledge_engine = KnowledgeEngine()
 
@@ -128,13 +130,13 @@ class Controller:
 
         try:
 
-            # Trend analysis
+            # Trend detection
             trending_topics = self.trend_engine.get_trending_topics()
 
             # Idea generation
             ideas = self.idea_engine.generate_ideas(trending_topics)
 
-            # Strategy planning
+            # Strategy generation
             strategy = self.strategy_engine.build_strategy(ideas)
 
             # Prompt interpretation
@@ -144,7 +146,7 @@ class Controller:
                 prompt
             )
 
-            # Data collection
+            # Research collection
             research_data = self.safe_run(
                 "data_collector",
                 self.data_collector.collect_data,
@@ -175,7 +177,7 @@ class Controller:
                 script
             )
 
-            # Visual generation
+            # Visual prompts
             visuals = self.safe_run(
                 "visual_generator",
                 self.visual_generator.generate_visuals,
@@ -211,7 +213,7 @@ class Controller:
                 composed_scenes
             )
 
-            # Video rendering
+            # Rendering
             rendered_video = self.safe_run(
                 "video_renderer",
                 self.video_renderer.render_video,
@@ -221,10 +223,13 @@ class Controller:
             # Thumbnail generation
             thumbnail = self.thumbnail_engine.generate_thumbnail(scenes)
 
-            # SEO metadata
+            # SEO generation
             metadata = self.seo_engine.generate_metadata(prompt_data, script)
 
-            # Platform export formats
+            # Viral prediction
+            viral_prediction = self.viral_engine.predict_viral_score(script, thumbnail)
+
+            # Multi-platform export
             platform_exports = self.publisher_engine.prepare_platform_exports(rendered_video)
 
             # Quality evaluation
@@ -265,6 +270,7 @@ class Controller:
                 "scenes": scenes,
                 "thumbnail": thumbnail,
                 "seo_metadata": metadata,
+                "viral_prediction": viral_prediction,
                 "rendered_video": rendered_video,
                 "platform_exports": platform_exports,
                 "quality_scores": quality,
@@ -274,7 +280,7 @@ class Controller:
                 "system_health": health
             }
 
-            # Save workflow to memory
+            # Save workflow
             self.memory_engine.store_video_record(workflow)
 
             return workflow
