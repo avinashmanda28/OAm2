@@ -35,6 +35,8 @@ from backend.modules.improvement.improvement_engine import ImprovementEngine
 from backend.modules.memory.memory_engine import MemoryEngine
 from backend.modules.memory.learning_memory import LearningMemory
 
+from backend.modules.optimization.self_optimizer import SelfOptimizer
+
 from backend.modules.orchestrator.orchestrator_engine import OrchestratorEngine
 from backend.modules.plugins.plugin_manager import PluginManager
 from backend.modules.router.model_router import ModelRouter
@@ -78,8 +80,10 @@ class Controller:
         # Task queue
         self.queue = TaskQueue()
 
-        # Learning memory
+        # Learning systems
+        self.memory_engine = MemoryEngine()
         self.learning_memory = LearningMemory()
+        self.self_optimizer = SelfOptimizer()
 
         # Intelligence engines
         self.trend_engine = TrendEngine()
@@ -132,7 +136,6 @@ class Controller:
 
         # Infrastructure
         self.assets = AssetManager()
-        self.memory_engine = MemoryEngine()
         self.orchestrator = OrchestratorEngine()
         self.plugins = PluginManager()
 
@@ -259,7 +262,6 @@ class Controller:
 
             # Queue render
             self.queue.add_task(self.video_renderer.render_video, [timeline])
-
             rendered_video = "queued_render"
 
             # Thumbnail
@@ -293,7 +295,7 @@ class Controller:
                 "scenes": scenes
             })
 
-            # Store learning memory
+            # Learning memory
             self.learning_memory.store_video_data({
                 "topic": prompt,
                 "script": script
@@ -301,8 +303,13 @@ class Controller:
 
             learning_patterns = self.learning_memory.analyze_patterns()
 
-            workflow_summary = self.workflow_engine.summarize_workflow(workflow_plan)
+            # Self optimization
+            optimization_report = self.self_optimizer.analyze_video({
+                "topic": prompt,
+                "script": script
+            })
 
+            workflow_summary = self.workflow_engine.summarize_workflow(workflow_plan)
             system_health = self.healing.check_system_health()
 
             self.assets.cleanup_assets()
@@ -314,6 +321,7 @@ class Controller:
                 "model_pipeline": self.model_router.get_pipeline(),
                 "queue_pending_tasks": self.queue.pending_tasks(),
                 "learning_patterns": learning_patterns,
+                "optimization_report": optimization_report,
                 "trending_topics": trending_topics,
                 "ideas": ideas,
                 "strategy": strategy,
