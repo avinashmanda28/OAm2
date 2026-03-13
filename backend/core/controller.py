@@ -41,6 +41,7 @@ from backend.modules.brain.multi_model_brain import MultiModelBrain
 from backend.modules.marketplace.agent_marketplace import AgentMarketplace
 from backend.modules.director.ai_director import AIDirector
 from backend.modules.consistency.visual_consistency import VisualConsistencyEngine
+from backend.modules.character.character_engine import CharacterEngine
 
 from backend.modules.orchestrator.orchestrator_engine import OrchestratorEngine
 from backend.modules.plugins.plugin_manager import PluginManager
@@ -76,10 +77,10 @@ class Controller:
         self.workflow_engine = WorkflowEngine()
         self.model_router = ModelRouter()
 
-        # Parallel execution
+        # Parallel processing
         self.parallel_engine = ParallelEngine()
 
-        # Resource control
+        # Resource manager
         self.resource_manager = ResourceManager()
 
         # Queue
@@ -93,7 +94,7 @@ class Controller:
         self.self_optimizer = SelfOptimizer()
         self.experiment_engine = ExperimentEngine()
 
-        # AI Brain
+        # AI brain
         self.brain = MultiModelBrain()
 
         # Marketplace
@@ -104,6 +105,15 @@ class Controller:
 
         # Visual consistency
         self.visual_consistency = VisualConsistencyEngine()
+
+        # Character system
+        self.character_engine = CharacterEngine()
+
+        # Create default host character
+        self.character_engine.create_character(
+            "host",
+            "Professional AI presenter"
+        )
 
         # Intelligence engines
         self.trend_engine = TrendEngine()
@@ -162,7 +172,7 @@ class Controller:
         # Publishing
         self.publisher_engine = PublisherEngine()
 
-        # Register core agents
+        # Register agents
         self.marketplace.register_agent("script_generator", self.script_generator)
         self.marketplace.register_agent("image_generator", self.image_generator)
         self.marketplace.register_agent("voice_generator", self.voice_generator)
@@ -198,8 +208,6 @@ class Controller:
             ideas = self.idea_engine.generate_ideas(trending_topics)
             strategy = self.strategy_engine.build_strategy(ideas)
 
-            script_model = self.brain.select_model("script")
-
             research_details = self.research_engine.research_topic(prompt_data)
 
             research_data = self.safe_run(
@@ -230,6 +238,11 @@ class Controller:
             audience_analysis = self.audience_engine.analyze_audience(script)
 
             scenes = direction["directed_scenes"]
+
+            scenes = self.character_engine.assign_character_to_scene(
+                scenes,
+                "host"
+            )
 
             visuals = self.safe_run(
                 "visual_generator",
@@ -315,6 +328,7 @@ class Controller:
                 "workflow_summary": workflow_summary,
                 "director_plan": direction,
                 "visual_style_profile": self.visual_consistency.get_style_profile(),
+                "characters": self.character_engine.list_characters(),
                 "ai_brain_models": self.brain.get_model_map(),
                 "experiment_results": experiment_results,
                 "learning_patterns": learning_patterns,
