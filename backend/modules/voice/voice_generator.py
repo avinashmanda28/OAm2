@@ -1,35 +1,21 @@
 import os
 
+def generate_voice(script):
 
-class VoiceGenerator:
+    os.makedirs("backend/temp/audio", exist_ok=True)
 
-    def __init__(self):
+    tracks = []
 
-        self.output_folder = "backend/temp/audio"
+    for i, scene in enumerate(script):
 
-        os.makedirs(self.output_folder, exist_ok=True)
+        path = f"backend/temp/audio/scene_{i}.wav"
 
-    def generate_voice(self, scene_data):
+        with open(path, "w") as f:
+            f.write(scene["text"])
 
-        scenes = scene_data["scenes"]
+        tracks.append({
+            "scene_id": i,
+            "audio_file": path
+        })
 
-        audio_files = []
-
-        for scene in scenes:
-
-            scene_id = scene["scene_id"]
-
-            filename = f"{self.output_folder}/scene_{scene_id}.txt"
-
-            # placeholder for voice (later will be real TTS)
-            with open(filename, "w") as f:
-                f.write(scene["narration"])
-
-            audio_files.append({
-                "scene_id": scene_id,
-                "audio_file": filename
-            })
-
-        return {
-            "audio_tracks": audio_files
-        }
+    return tracks
