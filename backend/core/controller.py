@@ -1,13 +1,12 @@
 # OAm² MASTER CONTROLLER
-# Main brain of the AI video factory
 
-
-# -----------------------------
-# IMPORT ALL MODULES
-# -----------------------------
+# -------------------------
+# IMPORT MODULES
+# -------------------------
 
 from backend.modules.prompt.prompt_interpreter import PromptInterpreter
 from backend.modules.prompt_expansion.prompt_expander import PromptExpansionEngine
+
 from backend.modules.planner.video_planner import VideoPlanner
 from backend.modules.script.script_generator import ScriptGenerator
 from backend.modules.story.story_engine import StoryEngine
@@ -37,7 +36,6 @@ from backend.modules.retrieval.retrieval_engine import RetrievalEngine
 
 from backend.modules.timing.timing_engine import TimingEngine
 from backend.modules.render_opt.render_optimizer import RenderOptimizer
-from backend.modules.compute.gpu_scheduler import GPUScheduler
 
 from backend.modules.error_prediction.error_prediction_engine import ErrorPredictionEngine
 from backend.modules.batch.batch_engine import BatchEngine
@@ -60,191 +58,188 @@ from backend.modules.analytics.video_analytics import VideoAnalytics
 from backend.modules.healing.self_healing import SelfHealingSystem
 
 
-# -----------------------------
-# CONTROLLER CLASS
-# -----------------------------
+# -------------------------
+# CONTROLLER
+# -------------------------
 
 class Controller:
 
     def __init__(self):
 
-        # Prompt engines
+        # prompt
         self.prompt_interpreter = PromptInterpreter()
         self.prompt_expander = PromptExpansionEngine()
 
-        # Planning engines
+        # planning
         self.video_planner = VideoPlanner()
         self.script_generator = ScriptGenerator()
         self.story_engine = StoryEngine()
 
-        # Scene engines
+        # scenes
         self.scene_splitter = SceneSplitter()
         self.scene_intelligence = SceneIntelligenceEngine()
 
-        # Visual engines
+        # visuals
         self.visual_generator = VisualPromptGenerator()
         self.image_generator = ImageGenerator()
         self.visual_memory = VisualMemoryEngine()
 
-        # Camera & lighting
+        # cinematic
         self.camera_engine = CameraEngine()
         self.lighting_engine = LightingEngine()
         self.style_engine = StyleTransferEngine()
 
-        # Audio engines
+        # audio
         self.voice_generator = VoiceGenerator()
         self.sound_engine = SoundEngine()
         self.music_engine = MusicEngine()
 
-        # Editing engines
+        # editing
         self.caption_generator = CaptionGenerator()
         self.smart_editor = SmartEditor()
         self.broll_engine = BRollEngine()
         self.silence_remover = SilenceRemover()
         self.hook_detector = HookDetector()
 
-        # Intelligence engines
+        # intelligence
         self.narrative_engine = NarrativeEngine()
         self.context_engine = ContextEngine()
         self.retrieval_engine = RetrievalEngine()
 
-        # Performance engines
+        # performance
         self.timing_engine = TimingEngine()
         self.render_optimizer = RenderOptimizer()
-        self.gpu_scheduler = GPUScheduler()
 
-        # Reliability engines
+        # reliability
         self.error_predictor = ErrorPredictionEngine()
         self.self_healing = SelfHealingSystem()
 
-        # Batch processing
+        # batch
         self.batch_engine = BatchEngine()
 
-        # Learning engines
+        # learning
         self.auto_learning = AutoLearningEngine()
         self.system_evolution = SystemEvolutionEngine()
 
-        # Assets
+        # optimization
         self.asset_manager = AssetManager()
-
-        # Optimization engines
         self.quality_engine = QualityEngine()
         self.thumbnail_engine = ThumbnailEngine()
         self.seo_engine = SEOEngine()
 
-        # Intelligence systems
+        # intelligence layer
         self.trend_engine = TrendEngine()
         self.idea_engine = IdeaEngine()
         self.strategy_engine = StrategyEngine()
         self.analytics_engine = VideoAnalytics()
 
 
-    # ------------------------------------------------
-    # MAIN VIDEO CREATION PIPELINE
-    # ------------------------------------------------
+    # -------------------------
+    # MAIN PIPELINE
+    # -------------------------
 
     def create_video(self, prompt):
 
         try:
 
-            # 1 Prompt interpretation
+            # prompt
             prompt_data = self.prompt_interpreter.interpret(prompt)
-
-            # 2 Prompt expansion
             expanded_prompt = self.prompt_expander.expand_prompt(prompt)
 
-            # 3 Trend analysis
+            # trends
             trends = self.trend_engine.get_trending_topics()
-
             ideas = self.idea_engine.generate_ideas(trends)
-
             strategy = self.strategy_engine.build_strategy(ideas)
 
-            # 4 Knowledge retrieval
+            # knowledge
             knowledge = self.retrieval_engine.retrieve_knowledge(prompt)
 
-            # 5 Video planning
+            # planning
             video_plan = self.video_planner.create_plan(prompt_data)
 
-            # 6 Script generation
+            # script
             script = self.script_generator.generate_script(video_plan)
 
-            script = self.narrative_engine.improve_story(script)
+            narrative = self.narrative_engine.improve_story(script)
 
-            # 7 Scene creation
+            if isinstance(narrative, list):
+                script = [item["original"] for item in narrative]
+            else:
+                script = narrative
+
+            # scenes
             scenes = self.scene_splitter.split_scenes(script)
 
             scenes = self.scene_intelligence.analyze_scenes(scenes)
 
-            # 8 Camera & lighting
+            # cinematic layers
             scenes = self.camera_engine.assign_camera(scenes)
-
             scenes = self.lighting_engine.assign_lighting(scenes)
 
-            # 9 Visual generation
+            # visuals
             visuals = self.visual_generator.generate_visuals(scenes)
 
             visuals = self.style_engine.apply_style(visuals)
 
-            # 10 Image generation
+            # images
             images = self.image_generator.generate_images(visuals)
 
-            # Store visuals
+            # memory
             for img in images:
-                self.visual_memory.store_visual("scene_asset", img)
+                self.visual_memory.store_visual("asset", img)
 
-            # 11 Voice
-            voice_tracks = self.voice_generator.generate_voice(scenes)
+            # voice
+            voice = self.voice_generator.generate_voice(scenes)
 
-            # 12 Audio design
+            # sound
             sound = self.sound_engine.assign_sounds(scenes)
 
             music = self.music_engine.choose_music(prompt)
 
-            # 13 Editing
+            # captions
             captions = self.caption_generator.generate_captions(script)
 
+            # editing
             edited = self.smart_editor.edit_video(images)
 
             edited = self.silence_remover.remove_silence(edited)
 
             edited = self.broll_engine.add_broll(edited)
 
-            # 14 Timing
-            timed_scenes = self.timing_engine.optimize_timing(scenes)
+            # timing
+            timing = self.timing_engine.optimize_timing(scenes)
 
-            # 15 Render optimization
-            render_settings = self.render_optimizer.optimize(timed_scenes)
+            # render settings
+            render = self.render_optimizer.optimize(timing)
 
-            # 16 Thumbnail
+            # thumbnail
             thumbnail = self.thumbnail_engine.generate_thumbnail(scenes)
 
-            # 17 SEO
+            # seo
             seo = self.seo_engine.generate_metadata(prompt, script)
 
-            # 18 Quality check
+            # quality
             quality = self.quality_engine.evaluate_video(edited)
 
-            # 19 Analytics
+            # analytics
             analytics = self.analytics_engine.analyze_video({
                 "script": script,
                 "scenes": scenes
             })
 
-            # 20 Learning
+            # learning
             self.auto_learning.record_video({
                 "topic": prompt
             })
 
-            learning_data = self.auto_learning.analyze_patterns()
+            learning = self.auto_learning.analyze_patterns()
 
-            # 21 System evolution
+            # evolution
             evolution = self.system_evolution.evaluate_system({
                 "errors": 0
             })
 
             return {
-
                 "prompt": prompt,
                 "expanded_prompt": expanded_prompt,
                 "knowledge": knowledge,
@@ -254,16 +249,15 @@ class Controller:
                 "script": script,
                 "scenes": scenes,
                 "images": images,
-                "voice": voice_tracks,
+                "voice": voice,
                 "music": music,
                 "captions": captions,
                 "thumbnail": thumbnail,
                 "seo": seo,
                 "quality": quality,
                 "analytics": analytics,
-                "learning": learning_data,
+                "learning": learning,
                 "evolution": evolution
-
             }
 
         except Exception as e:
