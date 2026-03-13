@@ -25,8 +25,6 @@ from backend.modules.strategy.strategy_engine import StrategyEngine
 from backend.modules.audience.audience_engine import AudienceEngine
 from backend.modules.viral.viral_engine import ViralEngine
 
-from backend.modules.collaboration.collaboration_engine import CollaborationEngine
-
 from backend.modules.emotion.emotion_engine import EmotionEngine
 from backend.modules.style.style_engine import StyleEngine
 from backend.modules.motion.motion_engine import MotionEngine
@@ -42,6 +40,8 @@ from backend.modules.router.model_router import ModelRouter
 from backend.modules.queue.task_queue import TaskQueue
 from backend.modules.supervisor.agent_supervisor import AgentSupervisor
 from backend.modules.analytics.video_analytics import VideoAnalytics
+
+from backend.modules.workflow.workflow_engine import WorkflowEngine
 
 from backend.modules.composer.scene_composer import SceneComposer
 from backend.modules.editor.video_editor import VideoEditor
@@ -59,15 +59,15 @@ class Controller:
         self.analytics = VideoAnalytics()
         self.healing = SelfHealingSystem()
 
+        # Workflow engine
+        self.workflow_engine = WorkflowEngine()
+
         # Intelligence engines
         self.trend_engine = TrendEngine()
         self.idea_engine = IdeaEngine()
         self.strategy_engine = StrategyEngine()
         self.audience_engine = AudienceEngine()
         self.viral_engine = ViralEngine()
-
-        # Collaboration engine
-        self.collaboration_engine = CollaborationEngine()
 
         # Research systems
         self.data_collector = DataCollector()
@@ -137,6 +137,16 @@ class Controller:
 
         try:
 
+            # Prompt interpretation
+            prompt_data = self.safe_run(
+                "prompt_interpreter",
+                self.prompt_interpreter.interpret,
+                prompt
+            )
+
+            # Decide workflow dynamically
+            workflow_plan = self.workflow_engine.decide_workflow(prompt_data)
+
             # Trend detection
             trending_topics = self.trend_engine.get_trending_topics()
 
@@ -145,13 +155,6 @@ class Controller:
 
             # Strategy generation
             strategy = self.strategy_engine.build_strategy(ideas)
-
-            # Prompt interpretation
-            prompt_data = self.safe_run(
-                "prompt_interpreter",
-                self.prompt_interpreter.interpret,
-                prompt
-            )
 
             # Research topic
             research_details = self.research_engine.research_topic(prompt_data)
@@ -177,16 +180,11 @@ class Controller:
                 video_plan
             )
 
-            # Expand script with research
+            # Expand script using research
             script = self.research_engine.expand_script(script, research_details)
-
-            # Share script with collaboration engine
-            self.collaboration_engine.share_data("script_engine", script)
 
             # Audience analysis
             audience_analysis = self.audience_engine.analyze_audience(script)
-
-            self.collaboration_engine.share_data("audience_engine", audience_analysis)
 
             # Scene splitting
             scenes = self.safe_run(
@@ -216,7 +214,7 @@ class Controller:
                 scenes
             )
 
-            # Scene composition
+            # Compose scenes
             composed_scenes = self.safe_run(
                 "scene_composer",
                 self.scene_composer.compose_scenes,
@@ -224,21 +222,21 @@ class Controller:
                 voice_tracks
             )
 
-            # Video editing
+            # Assemble video
             timeline = self.safe_run(
                 "video_editor",
                 self.video_editor.assemble_video,
                 composed_scenes
             )
 
-            # Rendering
+            # Render video
             rendered_video = self.safe_run(
                 "video_renderer",
                 self.video_renderer.render_video,
                 timeline
             )
 
-            # Thumbnail generation
+            # Thumbnail
             thumbnail = self.thumbnail_engine.generate_thumbnail(scenes)
 
             # SEO metadata
@@ -247,9 +245,7 @@ class Controller:
             # Viral prediction
             viral_prediction = self.viral_engine.predict_viral_score(script, thumbnail)
 
-            self.collaboration_engine.share_data("viral_engine", viral_prediction)
-
-            # Multi-platform exports
+            # Multi-platform export
             platform_exports = self.publisher_engine.prepare_platform_exports(rendered_video)
 
             # Quality evaluation
@@ -259,7 +255,7 @@ class Controller:
                 rendered_video
             )
 
-            # Improvement suggestions
+            # Improvements
             improvements = self.safe_run(
                 "improvement_engine",
                 self.improvement_engine.analyze_improvements,
@@ -272,8 +268,8 @@ class Controller:
                 "scenes": scenes
             })
 
-            # Collaboration summary
-            collaboration_summary = self.collaboration_engine.summarize_collaboration()
+            # Workflow summary
+            workflow_summary = self.workflow_engine.summarize_workflow(workflow_plan)
 
             # System health
             health = self.healing.check_system_health()
@@ -281,10 +277,12 @@ class Controller:
             # Cleanup assets
             self.assets.cleanup_assets()
 
-            workflow = {
+            result = {
+                "workflow_plan": workflow_plan,
+                "workflow_summary": workflow_summary,
                 "trending_topics": trending_topics,
-                "content_ideas": ideas,
-                "content_strategy": strategy,
+                "ideas": ideas,
+                "strategy": strategy,
                 "prompt_analysis": prompt_data,
                 "research_details": research_details,
                 "research_data": research_data,
@@ -300,14 +298,14 @@ class Controller:
                 "quality_scores": quality,
                 "analytics": analytics,
                 "suggested_improvements": improvements,
-                "collaboration_summary": collaboration_summary,
                 "agent_status": self.supervisor.get_status(),
                 "system_health": health
             }
 
-            self.memory_engine.store_video_record(workflow)
+            # Save to memory
+            self.memory_engine.store_video_record(result)
 
-            return workflow
+            return result
 
         except Exception as e:
 
