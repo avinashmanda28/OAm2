@@ -46,6 +46,7 @@ from backend.modules.character.character_engine import CharacterEngine
 from backend.modules.retention.retention_optimizer import RetentionOptimizer
 from backend.modules.chapters.chapter_engine import ChapterEngine
 from backend.modules.platform.platform_optimizer import PlatformOptimizer
+from backend.modules.strategy_ai.content_strategy_engine import ContentStrategyEngine
 
 from backend.modules.orchestrator.orchestrator_engine import OrchestratorEngine
 from backend.modules.plugins.plugin_manager import PluginManager
@@ -122,7 +123,10 @@ class Controller:
         # Platform optimizer
         self.platform_optimizer = PlatformOptimizer()
 
-        # Default host character
+        # Content strategy
+        self.content_strategy_engine = ContentStrategyEngine()
+
+        # Default host
         self.character_engine.create_character(
             "host",
             "Professional AI presenter"
@@ -333,6 +337,13 @@ class Controller:
 
             self.assets.cleanup_assets()
 
+            # Record strategy data
+            self.content_strategy_engine.record_video({
+                "topic": prompt
+            })
+
+            next_video_strategy = self.content_strategy_engine.suggest_next_video()
+
             result = {
                 "resource_status": resource_state,
                 "workflow_plan": workflow_plan,
@@ -350,6 +361,7 @@ class Controller:
                 "trending_topics": trending_topics,
                 "ideas": ideas,
                 "strategy": strategy,
+                "next_video_strategy": next_video_strategy,
                 "prompt_analysis": prompt_data,
                 "research_details": research_details,
                 "research_data": research_data,
