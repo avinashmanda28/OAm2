@@ -44,6 +44,7 @@ from backend.modules.analytics.video_analytics import VideoAnalytics
 from backend.modules.workflow.workflow_engine import WorkflowEngine
 from backend.modules.parallel.parallel_engine import ParallelEngine
 from backend.modules.resources.resource_manager import ResourceManager
+from backend.modules.communication.agent_bus import AgentBus
 
 from backend.modules.composer.scene_composer import SceneComposer
 from backend.modules.editor.video_editor import VideoEditor
@@ -55,19 +56,22 @@ class Controller:
 
     def __init__(self):
 
-        # Core monitoring systems
+        # Core monitoring
         self.supervisor = AgentSupervisor()
         self.analytics = VideoAnalytics()
         self.healing = SelfHealingSystem()
 
-        # Workflow and routing
+        # Communication bus
+        self.agent_bus = AgentBus()
+
+        # Workflow + routing
         self.workflow_engine = WorkflowEngine()
         self.model_router = ModelRouter()
 
-        # Parallel execution
+        # Parallel engine
         self.parallel_engine = ParallelEngine()
 
-        # Resource management
+        # Resource manager
         self.resource_manager = ResourceManager()
 
         # Intelligence engines
@@ -77,7 +81,7 @@ class Controller:
         self.audience_engine = AudienceEngine()
         self.viral_engine = ViralEngine()
 
-        # Research engines
+        # Research layer
         self.data_collector = DataCollector()
         self.knowledge_engine = KnowledgeEngine()
         self.research_engine = ResearchEngine()
@@ -93,7 +97,7 @@ class Controller:
         self.style_engine = StyleEngine()
         self.motion_engine = MotionEngine()
 
-        # Scene engines
+        # Scene systems
         self.scene_splitter = SceneSplitter()
         self.visual_generator = VisualPromptGenerator()
 
@@ -113,7 +117,7 @@ class Controller:
         self.video_editor = VideoEditor()
         self.video_renderer = VideoRenderer()
 
-        # Optimization engines
+        # Optimization
         self.thumbnail_engine = ThumbnailEngine()
         self.seo_engine = SEOEngine()
         self.quality_engine = QualityEngine()
@@ -144,7 +148,7 @@ class Controller:
 
         try:
 
-            # Check system resources before starting
+            # Resource check
             resource_state = self.resource_manager.wait_for_resources()
 
             # Interpret prompt
@@ -154,16 +158,21 @@ class Controller:
                 prompt
             )
 
-            # Decide workflow dynamically
+            # Publish prompt data for agents
+            self.agent_bus.publish("prompt_data", prompt_data)
+
+            # Decide workflow
             workflow_plan = self.workflow_engine.decide_workflow(prompt_data)
 
-            # Trend analysis
+            # Trends
             trending_topics = self.trend_engine.get_trending_topics()
+            self.agent_bus.publish("trends", trending_topics)
 
-            # Idea generation
+            # Ideas
             ideas = self.idea_engine.generate_ideas(trending_topics)
+            self.agent_bus.publish("ideas", ideas)
 
-            # Strategy generation
+            # Strategy
             strategy = self.strategy_engine.build_strategy(ideas)
 
             # Research
@@ -194,6 +203,9 @@ class Controller:
                 video_plan
             )
 
+            # Publish script to agent bus
+            self.agent_bus.publish("script", script)
+
             script = self.research_engine.expand_script(script, research_details)
 
             # Audience analysis
@@ -206,6 +218,9 @@ class Controller:
                 script
             )
 
+            # Publish scenes
+            self.agent_bus.publish("scenes", scenes)
+
             # Visual prompts
             visuals = self.safe_run(
                 "visual_generator",
@@ -213,7 +228,7 @@ class Controller:
                 scenes
             )
 
-            # Parallel image and voice generation
+            # Parallel image + voice generation
             tasks = [
                 {"function": self.image_generator.generate_images, "args": [visuals]},
                 {"function": self.voice_generator.generate_voice, "args": [scenes]}
@@ -224,7 +239,7 @@ class Controller:
             images = parallel_results[0]
             voice_tracks = parallel_results[1]
 
-            # Compose scenes
+            # Scene composition
             composed_scenes = self.safe_run(
                 "scene_composer",
                 self.scene_composer.compose_scenes,
@@ -232,14 +247,14 @@ class Controller:
                 voice_tracks
             )
 
-            # Edit video
+            # Video editing
             timeline = self.safe_run(
                 "video_editor",
                 self.video_editor.assemble_video,
                 composed_scenes
             )
 
-            # Render video
+            # Rendering
             rendered_video = self.safe_run(
                 "video_renderer",
                 self.video_renderer.render_video,
@@ -249,13 +264,13 @@ class Controller:
             # Thumbnail
             thumbnail = self.thumbnail_engine.generate_thumbnail(scenes)
 
-            # SEO metadata
+            # SEO
             metadata = self.seo_engine.generate_metadata(prompt_data, script)
 
             # Viral prediction
             viral_prediction = self.viral_engine.predict_viral_score(script, thumbnail)
 
-            # Export formats
+            # Multi-platform exports
             platform_exports = self.publisher_engine.prepare_platform_exports(rendered_video)
 
             # Quality evaluation
@@ -281,6 +296,7 @@ class Controller:
 
             system_health = self.healing.check_system_health()
 
+            # Cleanup temporary assets
             self.assets.cleanup_assets()
 
             result = {
@@ -307,7 +323,8 @@ class Controller:
                 "analytics": analytics,
                 "suggested_improvements": improvements,
                 "agent_status": self.supervisor.get_status(),
-                "system_health": system_health
+                "system_health": system_health,
+                "active_channels": self.agent_bus.list_channels()
             }
 
             self.memory_engine.store_video_record(result)
