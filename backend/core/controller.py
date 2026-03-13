@@ -40,7 +40,8 @@ from backend.modules.experiments.experiment_engine import ExperimentEngine
 from backend.modules.brain.multi_model_brain import MultiModelBrain
 from backend.modules.marketplace.agent_marketplace import AgentMarketplace
 from backend.modules.director.ai_director import AIDirector
-from backend.modules.consistency.visual_consistency import VisualConsistencyEngine
+
+from backend.modules.consistency.style_consistency_engine import StyleConsistencyEngine
 from backend.modules.character.character_engine import CharacterEngine
 from backend.modules.retention.retention_optimizer import RetentionOptimizer
 from backend.modules.chapters.chapter_engine import ChapterEngine
@@ -79,7 +80,7 @@ class Controller:
         self.workflow_engine = WorkflowEngine()
         self.model_router = ModelRouter()
 
-        # Parallel processing
+        # Parallel
         self.parallel_engine = ParallelEngine()
 
         # Resource manager
@@ -105,19 +106,19 @@ class Controller:
         # Director
         self.director = AIDirector()
 
-        # Visual consistency
-        self.visual_consistency = VisualConsistencyEngine()
+        # Style consistency
+        self.style_consistency_engine = StyleConsistencyEngine()
 
         # Character system
         self.character_engine = CharacterEngine()
 
-        # Retention optimizer
+        # Retention
         self.retention_optimizer = RetentionOptimizer()
 
-        # Chapter generator
+        # Chapters
         self.chapter_engine = ChapterEngine()
 
-        # Default presenter
+        # Default host
         self.character_engine.create_character(
             "host",
             "Professional AI presenter"
@@ -179,13 +180,6 @@ class Controller:
 
         # Publishing
         self.publisher_engine = PublisherEngine()
-
-        # Register agents
-        self.marketplace.register_agent("script_generator", self.script_generator)
-        self.marketplace.register_agent("image_generator", self.image_generator)
-        self.marketplace.register_agent("voice_generator", self.voice_generator)
-        self.marketplace.register_agent("video_editor", self.video_editor)
-        self.marketplace.register_agent("renderer", self.video_renderer)
 
     def safe_run(self, name, func, *args):
 
@@ -261,7 +255,7 @@ class Controller:
                 scenes
             )
 
-            visuals = self.visual_consistency.enforce_style(visuals)
+            visuals = self.style_consistency_engine.enforce_style(visuals)
 
             tasks = [
                 {"function": self.image_generator.generate_images, "args": [visuals]},
@@ -340,7 +334,7 @@ class Controller:
                 "workflow_plan": workflow_plan,
                 "workflow_summary": workflow_summary,
                 "director_plan": direction,
-                "visual_style_profile": self.visual_consistency.get_style_profile(),
+                "visual_style_profile": self.style_consistency_engine.get_style_profile(),
                 "characters": self.character_engine.list_characters(),
                 "retention_analysis": retention_analysis,
                 "chapters": chapters,
