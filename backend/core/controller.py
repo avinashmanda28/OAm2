@@ -15,6 +15,7 @@ from backend.modules.hook.hook_detector import HookDetector
 from backend.modules.healing.self_healing import SelfHealingSystem
 from backend.modules.knowledge.knowledge_engine import KnowledgeEngine
 from backend.modules.data.data_collector import DataCollector
+from backend.modules.research.research_engine import ResearchEngine
 
 from backend.modules.thumbnail.thumbnail_engine import ThumbnailEngine
 from backend.modules.seo.seo_engine import SEOEngine
@@ -66,6 +67,7 @@ class Controller:
         # Research systems
         self.data_collector = DataCollector()
         self.knowledge_engine = KnowledgeEngine()
+        self.research_engine = ResearchEngine()
 
         # Planning engines
         self.prompt_interpreter = PromptInterpreter()
@@ -146,7 +148,10 @@ class Controller:
                 prompt
             )
 
-            # Research collection
+            # Research topic
+            research_details = self.research_engine.research_topic(prompt_data)
+
+            # Data collection
             research_data = self.safe_run(
                 "data_collector",
                 self.data_collector.collect_data,
@@ -166,6 +171,9 @@ class Controller:
                 self.script_generator.generate_script,
                 video_plan
             )
+
+            # Expand script with research
+            script = self.research_engine.expand_script(script, research_details)
 
             # Audience analysis
             audience_analysis = self.audience_engine.analyze_audience(script)
@@ -223,13 +231,13 @@ class Controller:
             # Thumbnail generation
             thumbnail = self.thumbnail_engine.generate_thumbnail(scenes)
 
-            # SEO generation
+            # SEO metadata
             metadata = self.seo_engine.generate_metadata(prompt_data, script)
 
             # Viral prediction
             viral_prediction = self.viral_engine.predict_viral_score(script, thumbnail)
 
-            # Multi-platform export
+            # Platform exports
             platform_exports = self.publisher_engine.prepare_platform_exports(rendered_video)
 
             # Quality evaluation
@@ -239,7 +247,7 @@ class Controller:
                 rendered_video
             )
 
-            # Improvement suggestions
+            # Improvements
             improvements = self.safe_run(
                 "improvement_engine",
                 self.improvement_engine.analyze_improvements,
@@ -255,7 +263,7 @@ class Controller:
             # System health
             health = self.healing.check_system_health()
 
-            # Cleanup assets
+            # Cleanup
             self.assets.cleanup_assets()
 
             workflow = {
@@ -263,6 +271,7 @@ class Controller:
                 "content_ideas": ideas,
                 "content_strategy": strategy,
                 "prompt_analysis": prompt_data,
+                "research_details": research_details,
                 "research_data": research_data,
                 "video_plan": video_plan,
                 "script": script,
@@ -280,7 +289,6 @@ class Controller:
                 "system_health": health
             }
 
-            # Save workflow
             self.memory_engine.store_video_record(workflow)
 
             return workflow
