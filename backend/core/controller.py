@@ -48,6 +48,8 @@ from backend.modules.chapters.chapter_engine import ChapterEngine
 from backend.modules.platform.platform_optimizer import PlatformOptimizer
 from backend.modules.strategy_ai.content_strategy_engine import ContentStrategyEngine
 
+from backend.modules.agents.collaboration_engine import CollaborationEngine
+
 from backend.modules.orchestrator.orchestrator_engine import OrchestratorEngine
 from backend.modules.plugins.plugin_manager import PluginManager
 from backend.modules.router.model_router import ModelRouter
@@ -126,6 +128,9 @@ class Controller:
         # Content strategy
         self.content_strategy_engine = ContentStrategyEngine()
 
+        # Collaboration engine (multi-agent system)
+        self.collaboration_engine = CollaborationEngine()
+
         # Default host
         self.character_engine.create_character(
             "host",
@@ -175,7 +180,7 @@ class Controller:
         self.video_editor = VideoEditor()
         self.video_renderer = VideoRenderer()
 
-        # Optimization engines
+        # Optimization
         self.thumbnail_engine = ThumbnailEngine()
         self.seo_engine = SEOEngine()
         self.quality_engine = QualityEngine()
@@ -188,6 +193,12 @@ class Controller:
 
         # Publishing
         self.publisher_engine = PublisherEngine()
+
+        # Register collaboration agents
+        self.collaboration_engine.register_agent("planner", self.video_planner)
+        self.collaboration_engine.register_agent("script", self.script_generator)
+        self.collaboration_engine.register_agent("visual", self.visual_generator)
+        self.collaboration_engine.register_agent("editor", self.video_editor)
 
     def safe_run(self, name, func, *args):
 
@@ -337,7 +348,7 @@ class Controller:
 
             self.assets.cleanup_assets()
 
-            # Record strategy data
+            # Record strategy
             self.content_strategy_engine.record_video({
                 "topic": prompt
             })
@@ -353,15 +364,11 @@ class Controller:
                 "characters": self.character_engine.list_characters(),
                 "retention_analysis": retention_analysis,
                 "chapters": chapters,
-                "ai_brain_models": self.brain.get_model_map(),
-                "experiment_results": experiment_results,
-                "learning_patterns": learning_patterns,
-                "optimization_report": optimization_report,
-                "available_agents": self.marketplace.list_agents(),
+                "next_video_strategy": next_video_strategy,
+                "registered_agents": self.collaboration_engine.list_agents(),
                 "trending_topics": trending_topics,
                 "ideas": ideas,
                 "strategy": strategy,
-                "next_video_strategy": next_video_strategy,
                 "prompt_analysis": prompt_data,
                 "research_details": research_details,
                 "research_data": research_data,
