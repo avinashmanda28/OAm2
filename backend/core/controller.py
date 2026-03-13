@@ -39,6 +39,7 @@ from backend.modules.optimization.self_optimizer import SelfOptimizer
 from backend.modules.experiments.experiment_engine import ExperimentEngine
 from backend.modules.brain.multi_model_brain import MultiModelBrain
 from backend.modules.marketplace.agent_marketplace import AgentMarketplace
+from backend.modules.director.ai_director import AIDirector
 
 from backend.modules.orchestrator.orchestrator_engine import OrchestratorEngine
 from backend.modules.plugins.plugin_manager import PluginManager
@@ -62,40 +63,43 @@ class Controller:
 
     def __init__(self):
 
-        # Core monitoring
+        # Monitoring
         self.supervisor = AgentSupervisor()
         self.analytics = VideoAnalytics()
         self.healing = SelfHealingSystem()
 
-        # Communication system
+        # Communication
         self.agent_bus = AgentBus()
 
         # Workflow
         self.workflow_engine = WorkflowEngine()
         self.model_router = ModelRouter()
 
-        # Parallel processing
+        # Parallel execution
         self.parallel_engine = ParallelEngine()
 
-        # Resource manager
+        # Resource control
         self.resource_manager = ResourceManager()
 
-        # Task queue
+        # Queue
         self.queue = TaskQueue()
 
-        # Memory systems
+        # Memory
         self.memory_engine = MemoryEngine()
         self.learning_memory = LearningMemory()
 
-        # Optimization engines
+        # Optimization
         self.self_optimizer = SelfOptimizer()
         self.experiment_engine = ExperimentEngine()
 
         # AI Brain
         self.brain = MultiModelBrain()
 
-        # Agent Marketplace
+        # Marketplace
         self.marketplace = AgentMarketplace()
+
+        # Director
+        self.director = AIDirector()
 
         # Intelligence engines
         self.trend_engine = TrendEngine()
@@ -104,31 +108,31 @@ class Controller:
         self.audience_engine = AudienceEngine()
         self.viral_engine = ViralEngine()
 
-        # Research engines
+        # Research
         self.data_collector = DataCollector()
         self.knowledge_engine = KnowledgeEngine()
         self.research_engine = ResearchEngine()
 
-        # Planning engines
+        # Planning
         self.prompt_interpreter = PromptInterpreter()
         self.video_planner = VideoPlanner()
         self.script_generator = ScriptGenerator()
         self.story_engine = StoryEngine()
 
-        # Creative engines
+        # Creative
         self.emotion_engine = EmotionEngine()
         self.style_engine = StyleEngine()
         self.motion_engine = MotionEngine()
 
-        # Scene engines
+        # Scene + visuals
         self.scene_splitter = SceneSplitter()
         self.visual_generator = VisualPromptGenerator()
 
-        # Media generation
+        # Media
         self.image_generator = ImageGenerator()
         self.voice_generator = VoiceGenerator()
 
-        # Editing engines
+        # Editing
         self.caption_generator = CaptionGenerator()
         self.smart_editor = SmartEditor()
         self.broll_engine = BRollEngine()
@@ -154,7 +158,7 @@ class Controller:
         # Publishing
         self.publisher_engine = PublisherEngine()
 
-        # Register core agents in marketplace
+        # Register agents
         self.marketplace.register_agent("script_generator", self.script_generator)
         self.marketplace.register_agent("image_generator", self.image_generator)
         self.marketplace.register_agent("voice_generator", self.voice_generator)
@@ -191,7 +195,6 @@ class Controller:
             strategy = self.strategy_engine.build_strategy(ideas)
 
             script_model = self.brain.select_model("script")
-            research_model = self.brain.select_model("research")
 
             research_details = self.research_engine.research_topic(prompt_data)
 
@@ -216,15 +219,13 @@ class Controller:
             experiment_results = self.experiment_engine.run_experiments(script)
             script = experiment_results["best_script"]
 
+            direction = self.director.direct_video(script)
+
             script = self.research_engine.expand_script(script, research_details)
 
             audience_analysis = self.audience_engine.analyze_audience(script)
 
-            scenes = self.safe_run(
-                "scene_splitter",
-                self.scene_splitter.split_scenes,
-                script
-            )
+            scenes = direction["directed_scenes"]
 
             visuals = self.safe_run(
                 "visual_generator",
@@ -256,6 +257,7 @@ class Controller:
             )
 
             self.queue.add_task(self.video_renderer.render_video, [timeline])
+
             rendered_video = "queued_render"
 
             thumbnail = self.thumbnail_engine.generate_thumbnail(scenes)
@@ -305,6 +307,7 @@ class Controller:
                 "resource_status": resource_state,
                 "workflow_plan": workflow_plan,
                 "workflow_summary": workflow_summary,
+                "director_plan": direction,
                 "ai_brain_models": self.brain.get_model_map(),
                 "experiment_results": experiment_results,
                 "learning_patterns": learning_patterns,
