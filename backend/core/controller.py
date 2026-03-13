@@ -46,7 +46,6 @@ from backend.modules.workflow.workflow_engine import WorkflowEngine
 from backend.modules.composer.scene_composer import SceneComposer
 from backend.modules.editor.video_editor import VideoEditor
 from backend.modules.renderer.video_renderer import VideoRenderer
-
 from backend.modules.publisher.publisher_engine import PublisherEngine
 
 
@@ -54,13 +53,14 @@ class Controller:
 
     def __init__(self):
 
-        # Core systems
+        # Core system
         self.supervisor = AgentSupervisor()
         self.analytics = VideoAnalytics()
         self.healing = SelfHealingSystem()
 
-        # Workflow engine
+        # Workflow + routing
         self.workflow_engine = WorkflowEngine()
+        self.model_router = ModelRouter()
 
         # Intelligence engines
         self.trend_engine = TrendEngine()
@@ -69,12 +69,12 @@ class Controller:
         self.audience_engine = AudienceEngine()
         self.viral_engine = ViralEngine()
 
-        # Research systems
+        # Research layer
         self.data_collector = DataCollector()
         self.knowledge_engine = KnowledgeEngine()
         self.research_engine = ResearchEngine()
 
-        # Planning engines
+        # Planning
         self.prompt_interpreter = PromptInterpreter()
         self.video_planner = VideoPlanner()
         self.script_generator = ScriptGenerator()
@@ -93,7 +93,7 @@ class Controller:
         self.image_generator = ImageGenerator()
         self.voice_generator = VoiceGenerator()
 
-        # Editing systems
+        # Editing
         self.caption_generator = CaptionGenerator()
         self.smart_editor = SmartEditor()
         self.broll_engine = BRollEngine()
@@ -116,7 +116,6 @@ class Controller:
         self.memory_engine = MemoryEngine()
         self.orchestrator = OrchestratorEngine()
         self.plugins = PluginManager()
-        self.router = ModelRouter()
         self.queue = TaskQueue()
 
         # Publishing
@@ -137,7 +136,7 @@ class Controller:
 
         try:
 
-            # Prompt interpretation
+            # Interpret prompt
             prompt_data = self.safe_run(
                 "prompt_interpreter",
                 self.prompt_interpreter.interpret,
@@ -147,31 +146,35 @@ class Controller:
             # Decide workflow dynamically
             workflow_plan = self.workflow_engine.decide_workflow(prompt_data)
 
-            # Trend detection
+            # Detect trends
             trending_topics = self.trend_engine.get_trending_topics()
 
-            # Idea generation
+            # Generate ideas
             ideas = self.idea_engine.generate_ideas(trending_topics)
 
             # Strategy generation
             strategy = self.strategy_engine.build_strategy(ideas)
 
-            # Research topic
+            # Research
             research_details = self.research_engine.research_topic(prompt_data)
 
-            # Data collection
             research_data = self.safe_run(
                 "data_collector",
                 self.data_collector.collect_data,
                 prompt_data
             )
 
-            # Video planning
+            # Planning
             video_plan = self.safe_run(
                 "video_planner",
                 self.video_planner.create_plan,
                 prompt_data
             )
+
+            # Model routing example
+            script_model = self.model_router.route_task("script")
+            image_model = self.model_router.route_task("image")
+            voice_model = self.model_router.route_task("voice")
 
             # Script generation
             script = self.safe_run(
@@ -180,7 +183,6 @@ class Controller:
                 video_plan
             )
 
-            # Expand script using research
             script = self.research_engine.expand_script(script, research_details)
 
             # Audience analysis
@@ -222,7 +224,7 @@ class Controller:
                 voice_tracks
             )
 
-            # Assemble video
+            # Edit video
             timeline = self.safe_run(
                 "video_editor",
                 self.video_editor.assemble_video,
@@ -239,47 +241,43 @@ class Controller:
             # Thumbnail
             thumbnail = self.thumbnail_engine.generate_thumbnail(scenes)
 
-            # SEO metadata
+            # SEO
             metadata = self.seo_engine.generate_metadata(prompt_data, script)
 
-            # Viral prediction
+            # Viral score
             viral_prediction = self.viral_engine.predict_viral_score(script, thumbnail)
 
             # Multi-platform export
             platform_exports = self.publisher_engine.prepare_platform_exports(rendered_video)
 
-            # Quality evaluation
+            # Quality check
             quality = self.safe_run(
                 "quality_engine",
                 self.quality_engine.evaluate_video,
                 rendered_video
             )
 
-            # Improvements
             improvements = self.safe_run(
                 "improvement_engine",
                 self.improvement_engine.analyze_improvements,
                 quality
             )
 
-            # Analytics
             analytics = self.analytics.analyze_video({
                 "script": script,
                 "scenes": scenes
             })
 
-            # Workflow summary
             workflow_summary = self.workflow_engine.summarize_workflow(workflow_plan)
 
-            # System health
             health = self.healing.check_system_health()
 
-            # Cleanup assets
             self.assets.cleanup_assets()
 
             result = {
                 "workflow_plan": workflow_plan,
                 "workflow_summary": workflow_summary,
+                "model_pipeline": self.model_router.get_pipeline(),
                 "trending_topics": trending_topics,
                 "ideas": ideas,
                 "strategy": strategy,
@@ -302,7 +300,6 @@ class Controller:
                 "system_health": health
             }
 
-            # Save to memory
             self.memory_engine.store_video_record(result)
 
             return result
