@@ -1,25 +1,34 @@
 import os
-
+import subprocess
 
 class VideoRenderer:
 
     def __init__(self):
+        os.makedirs("backend/output/videos", exist_ok=True)
 
-        self.output_folder = "backend/output"
+    def render(self, images, voice=None):
 
-        os.makedirs(self.output_folder, exist_ok=True)
+        output_file = "backend/output/videos/final_video.mp4"
 
-    def render_video(self, editor_output):
+        if not images:
+            return {"error": "no images provided"}
 
-        final_video_path = f"{self.output_folder}/video_output.txt"
+        # For now we only use the first image
+        image_path = images[0]["image_file"]
 
-        timeline = editor_output["final_video"]
+        cmd = [
+            "ffmpeg",
+            "-y",
+            "-loop", "1",
+            "-i", image_path,
+            "-t", "5",
+            "-vf", "zoompan=z='min(zoom+0.0015,1.5)':d=125",
+            "-pix_fmt", "yuv420p",
+            output_file
+        ]
 
-        with open(final_video_path, "w") as f:
-
-            f.write("Rendered Video\n\n")
-            f.write(f"Source Timeline: {timeline}\n")
+        subprocess.run(cmd)
 
         return {
-            "rendered_video": final_video_path
+            "video_file": output_file
         }
