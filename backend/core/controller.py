@@ -33,6 +33,7 @@ from backend.modules.assets.asset_manager import AssetManager
 from backend.modules.quality.quality_engine import QualityEngine
 from backend.modules.improvement.improvement_engine import ImprovementEngine
 from backend.modules.memory.memory_engine import MemoryEngine
+from backend.modules.memory.learning_memory import LearningMemory
 
 from backend.modules.orchestrator.orchestrator_engine import OrchestratorEngine
 from backend.modules.plugins.plugin_manager import PluginManager
@@ -61,14 +62,14 @@ class Controller:
         self.analytics = VideoAnalytics()
         self.healing = SelfHealingSystem()
 
-        # Communication bus
+        # Communication system
         self.agent_bus = AgentBus()
 
-        # Workflow + routing
+        # Workflow & routing
         self.workflow_engine = WorkflowEngine()
         self.model_router = ModelRouter()
 
-        # Parallel engine
+        # Parallel processing
         self.parallel_engine = ParallelEngine()
 
         # Resource manager
@@ -76,6 +77,9 @@ class Controller:
 
         # Task queue
         self.queue = TaskQueue()
+
+        # Learning memory
+        self.learning_memory = LearningMemory()
 
         # Intelligence engines
         self.trend_engine = TrendEngine()
@@ -120,7 +124,7 @@ class Controller:
         self.video_editor = VideoEditor()
         self.video_renderer = VideoRenderer()
 
-        # Optimization
+        # Optimization engines
         self.thumbnail_engine = ThumbnailEngine()
         self.seo_engine = SEOEngine()
         self.quality_engine = QualityEngine()
@@ -153,7 +157,7 @@ class Controller:
             # Resource check
             resource_state = self.resource_manager.wait_for_resources()
 
-            # Interpret prompt
+            # Prompt interpretation
             prompt_data = self.safe_run(
                 "prompt_interpreter",
                 self.prompt_interpreter.interpret,
@@ -173,7 +177,7 @@ class Controller:
             ideas = self.idea_engine.generate_ideas(trending_topics)
             self.agent_bus.publish("ideas", ideas)
 
-            # Strategy generation
+            # Strategy
             strategy = self.strategy_engine.build_strategy(ideas)
 
             # Research
@@ -227,7 +231,7 @@ class Controller:
                 scenes
             )
 
-            # Parallel generation (images + voices)
+            # Parallel generation
             tasks = [
                 {"function": self.image_generator.generate_images, "args": [visuals]},
                 {"function": self.voice_generator.generate_voice, "args": [scenes]}
@@ -238,7 +242,7 @@ class Controller:
             images = parallel_results[0]
             voice_tracks = parallel_results[1]
 
-            # Scene composition
+            # Compose scenes
             composed_scenes = self.safe_run(
                 "scene_composer",
                 self.scene_composer.compose_scenes,
@@ -246,14 +250,14 @@ class Controller:
                 voice_tracks
             )
 
-            # Video editing
+            # Edit video
             timeline = self.safe_run(
                 "video_editor",
                 self.video_editor.assemble_video,
                 composed_scenes
             )
 
-            # Queue rendering task
+            # Queue render
             self.queue.add_task(self.video_renderer.render_video, [timeline])
 
             rendered_video = "queued_render"
@@ -261,16 +265,16 @@ class Controller:
             # Thumbnail
             thumbnail = self.thumbnail_engine.generate_thumbnail(scenes)
 
-            # SEO metadata
+            # SEO
             metadata = self.seo_engine.generate_metadata(prompt_data, script)
 
             # Viral prediction
             viral_prediction = self.viral_engine.predict_viral_score(script, thumbnail)
 
-            # Export formats
+            # Publishing formats
             platform_exports = self.publisher_engine.prepare_platform_exports(rendered_video)
 
-            # Quality check
+            # Quality evaluation
             quality = self.safe_run(
                 "quality_engine",
                 self.quality_engine.evaluate_video,
@@ -289,6 +293,14 @@ class Controller:
                 "scenes": scenes
             })
 
+            # Store learning memory
+            self.learning_memory.store_video_data({
+                "topic": prompt,
+                "script": script
+            })
+
+            learning_patterns = self.learning_memory.analyze_patterns()
+
             workflow_summary = self.workflow_engine.summarize_workflow(workflow_plan)
 
             system_health = self.healing.check_system_health()
@@ -301,6 +313,7 @@ class Controller:
                 "workflow_summary": workflow_summary,
                 "model_pipeline": self.model_router.get_pipeline(),
                 "queue_pending_tasks": self.queue.pending_tasks(),
+                "learning_patterns": learning_patterns,
                 "trending_topics": trending_topics,
                 "ideas": ideas,
                 "strategy": strategy,
