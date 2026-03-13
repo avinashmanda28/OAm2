@@ -45,6 +45,7 @@ from backend.modules.consistency.style_consistency_engine import StyleConsistenc
 from backend.modules.character.character_engine import CharacterEngine
 from backend.modules.retention.retention_optimizer import RetentionOptimizer
 from backend.modules.chapters.chapter_engine import ChapterEngine
+from backend.modules.platform.platform_optimizer import PlatformOptimizer
 
 from backend.modules.orchestrator.orchestrator_engine import OrchestratorEngine
 from backend.modules.plugins.plugin_manager import PluginManager
@@ -80,7 +81,7 @@ class Controller:
         self.workflow_engine = WorkflowEngine()
         self.model_router = ModelRouter()
 
-        # Parallel
+        # Parallel processing
         self.parallel_engine = ParallelEngine()
 
         # Resource manager
@@ -112,13 +113,16 @@ class Controller:
         # Character system
         self.character_engine = CharacterEngine()
 
-        # Retention
+        # Retention optimizer
         self.retention_optimizer = RetentionOptimizer()
 
         # Chapters
         self.chapter_engine = ChapterEngine()
 
-        # Default host
+        # Platform optimizer
+        self.platform_optimizer = PlatformOptimizer()
+
+        # Default host character
         self.character_engine.create_character(
             "host",
             "Professional AI presenter"
@@ -167,7 +171,7 @@ class Controller:
         self.video_editor = VideoEditor()
         self.video_renderer = VideoRenderer()
 
-        # Optimization
+        # Optimization engines
         self.thumbnail_engine = ThumbnailEngine()
         self.seo_engine = SEOEngine()
         self.quality_engine = QualityEngine()
@@ -292,7 +296,7 @@ class Controller:
 
             viral_prediction = self.viral_engine.predict_viral_score(script, thumbnail)
 
-            platform_exports = self.publisher_engine.prepare_platform_exports(rendered_video)
+            platform_exports = self.platform_optimizer.optimize_for_platform(rendered_video)
 
             quality = self.safe_run(
                 "quality_engine",
@@ -357,7 +361,7 @@ class Controller:
                 "seo_metadata": metadata,
                 "viral_prediction": viral_prediction,
                 "rendered_video": rendered_video,
-                "platform_exports": platform_exports,
+                "platform_outputs": platform_exports,
                 "quality_scores": quality,
                 "analytics": analytics,
                 "suggested_improvements": improvements,
