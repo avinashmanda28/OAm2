@@ -1,38 +1,58 @@
+import queue
 import threading
+import time
 
 
 class TaskQueue:
 
-    def __init__(self):
+    def __init__(self, workers=2):
 
-        self.tasks = []
+        self.task_queue = queue.Queue()
+        self.workers = workers
+        self.active_workers = []
+        self.running = True
 
-    def add_task(self, func, *args):
+        self.start_workers()
 
-        thread = threading.Thread(target=func, args=args)
+    def start_workers(self):
 
-        self.tasks.append(thread)
+        for _ in range(self.workers):
+            worker = threading.Thread(target=self.worker_loop)
+            worker.daemon = True
+            worker.start()
+            self.active_workers.append(worker)
 
-        return {
-            "task_added": func.__name__
-        }
+    def worker_loop(self):
 
-    def run_all(self):
+        while self.running:
 
-        for task in self.tasks:
-            task.start()
+            try:
+                task = self.task_queue.get(timeout=1)
 
-        for task in self.tasks:
-            task.join()
+                func = task["function"]
+                args = task.get("args", [])
 
-        return {
-            "tasks_completed": len(self.tasks)
-        }
+                func(*args)
 
-    def clear_tasks(self):
+                self.task_queue.task_done()
 
-        self.tasks = []
+            except queue.Empty:
+                time.sleep(0.1)
 
-        return {
-            "status": "queue_cleared"
-      }
+    def add_task(self, function, args=None):
+
+        if args is None:
+            args = []
+
+        self.task_queue.put({
+            "function": function,
+            "args": args
+        })
+
+    def pending_tasks(self):
+
+        return self.task_queue.qsize()
+
+    def stop(self):
+
+        self.running = False
